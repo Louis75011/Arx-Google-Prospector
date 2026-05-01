@@ -1,0 +1,6 @@
+{
+  "name": "Google Maps Leads Generator",
+  "description": "Application de génération de leads locaux via Google Maps + PhantomBuster + enrichissement IA. Par Arx Systema.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
