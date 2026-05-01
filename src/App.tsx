@@ -11,13 +11,16 @@ const MESSAGE_GOALS = [
   { id: 'website', label: 'Création / Refonte Site Web', angle: 'Absence de site ou site obsolète' },
   { id: 'seo', label: 'Visibilité SEO Local (Google)', angle: 'Mauvaise position Google Maps' },
   { id: 'reviews', label: 'E-réputation & Avis', angle: 'Note globale < 4 ou avis récents négatifs' },
-  { id: 'auto', label: 'Automatisation & IA', angle: 'Canaux de contact non optimisés' }
+  { id: 'auto', label: 'Automatisation & IA', angle: 'Canaux de contact non optimisés' },
+  { id: 'whitelabel', label: 'Collaboration Marque Blanche', angle: 'Soutien technique / Expertise technique' },
+  { id: 'partnership', label: 'Partenariat Apporteur d\'Affaires', angle: 'Synergie locale Yvelines' }
 ];
 
 const MESSAGE_TONES = [
   { id: 'direct', label: 'Direct & ROIste (Court)' },
   { id: 'expert', label: 'Consultant & Expert (Détaillé)' },
   { id: 'local', label: 'Proximité & Commerçant (Empathique)' },
+  { id: 'peer', label: 'De Pro à Pro (Collaboratif)' },
 ];
 
 const BUSINESS_FAMILIES = [
@@ -44,6 +47,21 @@ const BUSINESS_FAMILIES = [
   {
     id: 'f6', title: 'Restauration & loisirs', icon: '🍽️',
     items: ['Restaurant', 'Pizzeria', 'Brasserie-café', 'Fast food', 'Bar', 'Salle de sport', 'École de danse', 'Auto-école', 'Photographe']
+  }
+];
+
+const AGENCY_FAMILIES = [
+  {
+    id: 'af1', title: 'Digital & Tech', icon: '💻',
+    items: ['Agence Web', 'Agence Digitale', 'Développeur Freelance', 'Agence SEO', 'Expert No-code', 'Maintenance IT']
+  },
+  {
+    id: 'af2', title: 'Com & Design', icon: '🎨',
+    items: ['Agence de Communication', 'Graphiste Indépendant', 'Agence Social Media', 'Vidéaste Corporate', 'Agence Publicité']
+  },
+  {
+    id: 'af3', title: 'Conseil & B2B', icon: '💼',
+    items: ['Conseil aux Entreprises', 'Expert-Comptable', 'Espace Coworking', 'Agence de Marketing']
   }
 ];
 
@@ -128,8 +146,9 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  // Mobile sidebar toggle
+  // Sidebar Toggle & Mode
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [appMode, setAppMode] = useState<'commerces' | 'agences'>('commerces');
 
   // State
   const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
@@ -268,6 +287,13 @@ export default function App() {
       const act = selectedBusinesses.length > 0 ? selectedBusinesses[0] : "[Activité]";
       const loc = selectedLocations.length > 0 ? selectedLocations[0] : "[Ville]";
       
+      if (msgGoal === 'whitelabel') {
+          return `Sujet : Partenariat Marque Blanche - [Votre Nom / Arx Systema]\n\nBonjour {{Nom}},\n\nJ'ai découvert votre agence de ${act} sur ${loc} et j'apprécie la qualité de vos réalisations.\n\nJe suis spécialisé en automatisation et développement spécifique. Je me demandais si vous aviez parfois des demandes clients que vous ne pouviez pas traiter en interne (manque de temps ou expertise spécifique) ?\n\nJe travaille souvent en marque blanche pour des confrères et j'aimerais vous proposer une solution de débordement flexible.\n\nSeriez-vous ouvert à en discuter 10 minutes ?\n\nCordialement,`;
+      }
+      if (msgGoal === 'partnership') {
+          return `Sujet : Collaboration et recommandation locale à ${loc}\n\nBonjour {{Nom}},\n\nJe suis [Votre Nom], basé également dans les Yvelines (Arx Systema).\n\nEn tant que ${act}, vous êtes en contact régulier avec des entreprises locales qui ont sûrement des besoins que je traite (Refonte web, IA, CRM).\n\nDe mon côté, j'ai aussi des clients qui cherchent vos expertises.\nJe souhaiterais vous proposer un système d'apport d'affaires mutuel pour dynamiser notre réseau local.\n\nQuelle est votre disponibilité pour un café rapide sur ${loc} ?\n\nBien à vous,`;
+      }
+      
       if (msgGoal === 'website') {
           if (msgTone === 'direct') return `Sujet : Votre présence en ligne à ${loc}\n\nBonjour {{Prénom / Nom}},\n\nEn cherchant un ${act} sur ${loc}, j'ai remarqué que vous n'aviez pas de site web (ou qu'il n'était pas bien référencé).\nAujourd'hui, c'est indispensable pour capter les clients de la zone.\n\nJe crée des sites clés-en-main qui génèrent directement des appels pour les pros.\nSeriez-vous dispo mardi pour en parler 5 min ?\n\nBien à vous,`;
           if (msgTone === 'expert') return `Sujet : Audit digital rapide pour votre activité de ${act}\n\nBonjour {{Prénom / Nom}},\n\nJ'ai analysé votre présence digitale sur ${loc} en tant que ${act}. Sans site web performant, vous laissez la majorité du trafic de recherche locale à vos concurrents directs.\n\nNotre méthodologie permet de déployer une solution web optimisée conversion en 7 jours, augmentant vos appels entrants de 20 à 30%.\n\nUn échange de 10 minutes serait-il pertinent pour vous ?\n\nCordialement,`;
@@ -383,15 +409,33 @@ export default function App() {
         {/* Sidebar Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar">
           
+          {/* SELECTION DE MODE (NOUVEAU) */}
+          <section className="p-1 bg-white dark:bg-[#121622] rounded-lg border border-slate-200 dark:border-gray-800 flex gap-1">
+             <button 
+                onClick={() => { setAppMode('commerces'); setSelectedBusinesses([]); }}
+                className={`flex-1 flex flex-col items-center py-2 px-1 rounded transition-all focus:outline-none ${appMode === 'commerces' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:text-gray-500 dark:hover:bg-gray-800/50'}`}
+             >
+                <Store className="w-4 h-4 mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Commerces</span>
+             </button>
+             <button 
+                onClick={() => { setAppMode('agences'); setSelectedBusinesses([]); }}
+                className={`flex-1 flex flex-col items-center py-2 px-1 rounded transition-all focus:outline-none ${appMode === 'agences' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:text-gray-500 dark:hover:bg-gray-800/50'}`}
+             >
+                <Target className="w-4 h-4 mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Indés / Agences</span>
+             </button>
+          </section>
+
           {/* SECTION 1: ENSEIGNES (COMPACT) */}
           <section>
              <div className="flex items-center justify-between mb-2">
                 <h2 className="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                   Enseignes ({selectedBusinesses.length})
+                   {appMode === 'commerces' ? 'Enseignes' : 'Secteurs B2B'} ({selectedBusinesses.length})
                 </h2>
              </div>
              <div className="space-y-1.5">
-                {BUSINESS_FAMILIES.map(family => (
+                {(appMode === 'commerces' ? BUSINESS_FAMILIES : AGENCY_FAMILIES).map(family => (
                    <div key={family.id} className="bg-white dark:bg-[#121622] rounded border border-slate-200 dark:border-gray-800/80 overflow-hidden">
                       <button 
                          onClick={() => toggleFamily(family.id)}
