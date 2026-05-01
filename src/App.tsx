@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   MapPin, Store, Settings, Target, Beaker, Copy, Download,
   Save, RotateCcw, ChevronDown, ChevronUp, DownloadCloud,
-  CheckCircle2, Mail, Phone, MessageSquare, Globe, Search, Plus, Facebook, Instagram, Linkedin, Map, AlignLeft
+  CheckCircle2, Mail, Phone, MessageSquare, Globe, Search, Plus, Facebook, Instagram, Linkedin, Map, AlignLeft, ExternalLink, Moon, Sun
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -104,6 +104,17 @@ function useLocalStorage<T>(key: string, initialValue: T) {
 // --- MAIN COMPONENT ---
 
 export default function App() {
+  // Theme state: defaults to light mode (false)
+  const [isDarkMode, setIsDarkMode] = useLocalStorage<boolean>('arx_theme_dark', false);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -127,6 +138,17 @@ export default function App() {
   // Sessions History State
   const [sessions, setSessions] = useLocalStorage<any[]>('arx_lead_sessions', []);
   const [sessionName, setSessionName] = useState('');
+
+  // Copy State for Animation
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, id?: string) => {
+    navigator.clipboard.writeText(text);
+    if (id) {
+        setCopiedUrl(id);
+        setTimeout(() => setCopiedUrl(null), 2000);
+    }
+  };
 
   // Toggles
   const toggleBusiness = (b: string) => {
@@ -225,10 +247,6 @@ export default function App() {
   }, [selectedFilters, selectedCoords]);
 
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
   const exportAll = () => {
     let content = `=== RÉCAPITULATIF DE RECHERCHE ARX SYSTEMA ===\n\n`;
     content += `URL MAPS GÉNÉRÉES:\n`;
@@ -287,22 +305,22 @@ export default function App() {
   const totalQueries = generatedQueries.length;
   
   return (
-    <div className="h-[100dvh] w-full flex overflow-hidden bg-[#0f1117] text-gray-300 font-sans selection:bg-indigo-500/30">
+    <div className="h-[100dvh] w-full flex overflow-hidden bg-white dark:bg-[#0f1117] text-slate-800 dark:text-gray-300 font-sans selection:bg-indigo-500/30">
       
       {/* Sidebar Focus Mode */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-[300px] bg-[#161b2a] border-r border-gray-800 flex flex-col shrink-0 transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 w-[300px] bg-slate-50 border-r border-slate-200 dark:bg-[#161b2a] dark:border-gray-800 flex flex-col shrink-0 transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Sidebar Header */}
-        <div className="h-[60px] p-4 border-b border-gray-800 flex items-center justify-between shrink-0 bg-[#121622]">
+        <div className="h-[60px] p-4 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between shrink-0 bg-slate-100 dark:bg-[#121622]">
           <div className="flex items-center gap-2">
              <div className="w-7 h-7 rounded bg-indigo-600 flex items-center justify-center">
                <MapPin className="w-3.5 h-3.5 text-white" />
              </div>
              <div>
-                <h1 className="text-[13px] font-bold text-white leading-tight tracking-tight">Leads Gen</h1>
-                <p className="text-[10px] text-gray-400 font-mono tracking-tight uppercase">Arx Systema</p>
+                <h1 className="text-[13px] font-bold text-slate-900 dark:text-white leading-tight tracking-tight">Leads Gen</h1>
+                <p className="text-[10px] text-slate-500 dark:text-gray-400 font-mono tracking-tight uppercase">Arx Systema</p>
              </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-white">
+          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">
             <span className="text-xl leading-none">&times;</span>
           </button>
         </div>
@@ -313,25 +331,25 @@ export default function App() {
           {/* SECTION 1: ENSEIGNES (COMPACT) */}
           <section>
              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                <h2 className="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                    Enseignes ({selectedBusinesses.length})
                 </h2>
              </div>
              <div className="space-y-1.5">
                 {BUSINESS_FAMILIES.map(family => (
-                   <div key={family.id} className="bg-[#121622] rounded border border-gray-800/80 overflow-hidden">
+                   <div key={family.id} className="bg-white dark:bg-[#121622] rounded border border-slate-200 dark:border-gray-800/80 overflow-hidden">
                       <button 
                          onClick={() => toggleFamily(family.id)}
-                         className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] font-medium hover:bg-gray-800/30 transition-colors text-left focus:outline-none"
+                         className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] font-medium hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors text-left focus:outline-none"
                       >
                          <span className="flex items-center gap-1.5 truncate">
                            <span className="text-xs">{family.icon}</span> <span className="truncate">{family.title}</span>
                          </span>
-                         {openFamilies[family.id] ? <ChevronUp className="w-3 h-3 text-gray-500 shrink-0" /> : <ChevronDown className="w-3 h-3 text-gray-500 shrink-0" />}
+                         {openFamilies[family.id] ? <ChevronUp className="w-3 h-3 text-slate-400 dark:text-gray-500 shrink-0" /> : <ChevronDown className="w-3 h-3 text-slate-400 dark:text-gray-500 shrink-0" />}
                       </button>
                       
                       {openFamilies[family.id] && (
-                        <div className="px-2 pb-2 pt-1 border-t border-gray-800/80 flex flex-wrap gap-1.5 bg-[#0f1117]/50">
+                        <div className="px-2 pb-2 pt-1 border-t border-slate-200 dark:border-gray-800/80 flex flex-wrap gap-1.5 bg-slate-50 dark:bg-[#0f1117]/50">
                            {family.items.map(item => {
                               const isActive = selectedBusinesses.includes(item);
                               return (
@@ -340,8 +358,8 @@ export default function App() {
                                    onClick={() => toggleBusiness(item)}
                                    className={`text-[10px] px-1.5 py-0.5 rounded transition-all focus:outline-none ${
                                      isActive 
-                                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' 
-                                      : 'bg-gray-800/40 text-gray-400 hover:bg-gray-700/60 border border-gray-700/50'
+                                      ? 'bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-indigo-600/20 dark:text-indigo-300 dark:border-indigo-500/30' 
+                                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 dark:bg-gray-800/40 dark:text-gray-400 dark:hover:bg-gray-700/60 dark:border-gray-700/50'
                                    }`}
                                 >
                                    {item}
@@ -360,11 +378,11 @@ export default function App() {
                      value={customBusiness}
                      onChange={(e) => setCustomBusiness(e.target.value)}
                      onKeyDown={addCustomBusiness}
-                     className="flex-1 bg-[#121622] border border-gray-800 rounded px-2 py-1 text-[11px] text-gray-300 placeholder:text-gray-600 focus:outline-none focus:border-indigo-500"
+                     className="flex-1 bg-white border border-slate-200 rounded px-2 py-1 text-[11px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 dark:bg-[#121622] dark:border-gray-800 dark:text-gray-300 dark:placeholder:text-gray-600"
                    />
                    <button 
                       onClick={addCustomBusiness}
-                      className="bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded transition-colors focus:outline-none"
+                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white px-2 py-1 rounded transition-colors focus:outline-none"
                    >
                      <Plus className="w-3 h-3" />
                    </button>
@@ -373,7 +391,7 @@ export default function App() {
                 {selectedBusinesses.filter(b => !BUSINESS_FAMILIES.some(f => f.items.includes(b))).length > 0 && (
                    <div className="flex flex-wrap gap-1 mt-1">
                       {selectedBusinesses.filter(b => !BUSINESS_FAMILIES.some(f => f.items.includes(b))).map(b => (
-                         <button key={b} onClick={() => toggleBusiness(b)} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                         <button key={b} onClick={() => toggleBusiness(b)} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 border border-indigo-300 dark:bg-indigo-600/20 dark:text-indigo-300 dark:border-indigo-500/30 flex items-center gap-1">
                             {b} <span className="opacity-70 hover:opacity-100">&times;</span>
                          </button>
                       ))}
@@ -382,26 +400,26 @@ export default function App() {
              </div>
           </section>
 
-          <hr className="border-gray-800" />
+          <hr className="border-slate-200 dark:border-gray-800" />
 
           {/* SECTION 2: VILLES (COMPACT) */}
           <section>
              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                <h2 className="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                    Villes ({selectedLocations.length})
                 </h2>
              </div>
 
-             {/* Tab Row (using native scrolling for tiny areas) */}
-             <div className="flex overflow-x-auto no-scrollbar gap-1 mb-2 pb-1 border-b border-gray-800">
+             {/* Tab Row */}
+             <div className="flex overflow-x-auto no-scrollbar gap-1 mb-2 pb-1 border-b border-slate-200 dark:border-gray-800">
                 {LOCATION_CIRCLES.map(circle => (
                    <button
                       key={circle.id}
                       onClick={() => setActiveLocationTab(circle.id)}
                       className={`px-2 py-1 text-[10px] whitespace-nowrap rounded-t-sm transition-colors focus:outline-none ${
                          activeLocationTab === circle.id 
-                           ? 'bg-teal-500/10 text-teal-400 border-b-2 border-teal-500' 
-                           : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/30 border-b-2 border-transparent'
+                           ? 'bg-teal-50 text-teal-700 border-b-2 border-teal-500 dark:bg-teal-500/10 dark:text-teal-400' 
+                           : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100 border-b-2 border-transparent dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-800/30'
                       }`}
                    >
                       {circle.title}
@@ -421,8 +439,8 @@ export default function App() {
                                   onClick={() => toggleLocation(loc)}
                                   className={`text-[10px] px-1.5 py-0.5 rounded transition-all focus:outline-none ${
                                     isActive 
-                                     ? 'bg-teal-500/15 text-teal-300 border border-teal-500/30' 
-                                     : 'bg-[#121622] text-gray-400 hover:bg-gray-800 border border-gray-800/80'
+                                     ? 'bg-teal-100 text-teal-700 border border-teal-200 dark:bg-teal-500/15 dark:text-teal-300 dark:border-teal-500/30' 
+                                     : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 dark:bg-[#121622] dark:text-gray-400 dark:hover:bg-gray-800 dark:border-gray-800/80'
                                   }`}
                                >
                                   {loc}
@@ -432,7 +450,7 @@ export default function App() {
                       </div>
                       <button 
                          onClick={() => selectAllLocationsInTab(circle.id)}
-                         className="text-[10px] text-teal-400 hover:text-teal-300 underline decoration-teal-500/30"
+                         className="text-[10px] text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 underline decoration-teal-500/30"
                       >
                          Tout {selectedLocations.length === circle.items.length ? 'désélectionner' : 'sélectionner'}
                       </button>
@@ -442,19 +460,19 @@ export default function App() {
                 {/* Custom Location Input */}
                 <div className="flex items-center gap-1 mt-2">
                    <div className="relative flex-1">
-                      <Search className="w-3 h-3 absolute left-2 top-1.5 text-gray-500" />
+                      <Search className="w-3 h-3 absolute left-2 top-1.5 text-slate-400 dark:text-gray-500" />
                       <input
                         type="text"
                         placeholder="Autre ville..."
                         value={customLocation}
                         onChange={(e) => setCustomLocation(e.target.value)}
                         onKeyDown={addCustomLocation}
-                        className="w-full bg-[#121622] border border-gray-800 rounded pl-7 pr-2 py-1 text-[11px] text-gray-300 placeholder:text-gray-600 focus:outline-none focus:border-teal-500"
+                        className="w-full bg-white border border-slate-200 rounded pl-7 pr-2 py-1 text-[11px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-teal-500 dark:bg-[#121622] dark:border-gray-800 dark:text-gray-300 dark:placeholder:text-gray-600"
                       />
                    </div>
                    <button 
                       onClick={addCustomLocation}
-                      className="bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded transition-colors focus:outline-none"
+                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white px-2 py-1 rounded transition-colors focus:outline-none"
                    >
                      <Plus className="w-3 h-3" />
                    </button>
@@ -463,7 +481,7 @@ export default function App() {
                 {selectedLocations.filter(l => !LOCATION_CIRCLES.some(c => c.items.includes(l))).length > 0 && (
                    <div className="flex flex-wrap gap-1 mt-1">
                       {selectedLocations.filter(l => !LOCATION_CIRCLES.some(c => c.items.includes(l))).map(l => (
-                         <button key={l} onClick={() => toggleLocation(l)} className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/15 text-teal-300 border border-teal-500/30 flex items-center gap-1">
+                         <button key={l} onClick={() => toggleLocation(l)} className="text-[10px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 border border-teal-200 dark:bg-teal-500/15 dark:text-teal-300 dark:border-teal-500/30 flex items-center gap-1">
                             {l} <span className="opacity-70 hover:opacity-100">&times;</span>
                          </button>
                       ))}
@@ -472,16 +490,16 @@ export default function App() {
              </div>
           </section>
 
-          <hr className="border-gray-800" />
+          <hr className="border-slate-200 dark:border-gray-800" />
 
           {/* SECTION 3: FILTRES (COMPACT) */}
           <section>
-             <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+             <h2 className="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider mb-2">
                  Filtres & Scraping
              </h2>
-             <div className="bg-[#121622] rounded border border-gray-800/80 p-2 space-y-3">
+             <div className="bg-white dark:bg-[#121622] rounded border border-slate-200 dark:border-gray-800/80 p-2 space-y-3">
                 <div>
-                   <span className="text-[10px] text-gray-500 mb-1.5 block">Filtres post-scraping (Claude)</span>
+                   <span className="text-[10px] text-slate-500 dark:text-gray-500 mb-1.5 block">Filtres post-scraping (Claude)</span>
                    <div className="flex flex-wrap gap-1">
                        {INTENT_FILTERS.map(filter => {
                            const isActive = selectedFilters.includes(filter.id);
@@ -491,8 +509,8 @@ export default function App() {
                                 onClick={() => toggleFilter(filter.id)}
                                 className={`text-[9px] px-1.5 py-0.5 rounded border transition-colors focus:outline-none flex items-center gap-1 ${
                                    isActive 
-                                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
-                                      : 'bg-transparent border-gray-700 text-gray-500 hover:border-gray-500 hover:text-gray-400'
+                                      ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-400' 
+                                      : 'bg-transparent border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-800 dark:border-gray-700 dark:text-gray-500 dark:hover:border-gray-500 dark:hover:text-gray-400'
                                 }`}
                               >
                                  <span>{filter.icon}</span> {filter.label}
@@ -502,18 +520,18 @@ export default function App() {
                    </div>
                 </div>
                 <div>
-                   <span className="text-[10px] text-gray-500 mb-1.5 block">Coordonnées à extraire</span>
+                   <span className="text-[10px] text-slate-500 dark:text-gray-500 mb-1.5 block">Coordonnées à extraire</span>
                    <div className="flex flex-wrap gap-1.5">
                        {TARGET_COORDS.map(coord => {
                           const isChecked = selectedCoords.includes(coord.id);
                           return (
                              <label key={coord.id} className="flex items-center gap-1.5 cursor-pointer group">
                                 <div className={`w-3 h-3 rounded-[3px] border flex items-center justify-center transition-colors ${
-                                   isChecked ? 'bg-amber-500 border-amber-500' : 'bg-[#0f1117] border-gray-600 group-hover:border-gray-400'
+                                   isChecked ? 'bg-amber-500 border-amber-500' : 'bg-slate-50 border-slate-300 group-hover:border-slate-400 dark:bg-[#0f1117] dark:border-gray-600 dark:group-hover:border-gray-400'
                                 }`}>
-                                   {isChecked && <CheckCircle2 className="w-2.5 h-2.5 text-[#0f1117] stroke-[3]" />}
+                                   {isChecked && <CheckCircle2 className="w-2.5 h-2.5 text-white dark:text-[#0f1117] stroke-[3]" />}
                                 </div>
-                                <span className="text-[10px] text-gray-400 group-hover:text-gray-300 leading-none">
+                                <span className="text-[10px] text-slate-600 group-hover:text-slate-800 dark:text-gray-400 dark:group-hover:text-gray-300 leading-none">
                                    {coord.label}
                                 </span>
                                 <input 
@@ -531,14 +549,14 @@ export default function App() {
           </section>
 
           {/* SESSION SAVE (Minimal) */}
-          <section className="bg-gradient-to-br from-[#161b2a] to-[#121622] rounded border border-gray-800 p-2.5">
+          <section className="bg-gradient-to-br from-slate-100 to-white border border-slate-200 dark:from-[#161b2a] dark:to-[#121622] rounded dark:border-gray-800 p-2.5">
              <div className="flex gap-1.5">
                 <input 
                   type="text" 
                   value={sessionName}
                   onChange={(e) => setSessionName(e.target.value)}
                   placeholder="Nommer cette cible..."
-                  className="flex-1 bg-[#0f1117] border border-gray-700 rounded px-2 py-1 text-[11px] text-gray-300 placeholder:text-gray-600 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 bg-white border border-slate-300 rounded px-2 py-1 text-[11px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 dark:bg-[#0f1117] dark:border-gray-700 dark:text-gray-300 dark:placeholder:text-gray-600"
                 />
                 <button 
                   onClick={saveSession}
@@ -551,12 +569,12 @@ export default function App() {
              </div>
              {sessions.length > 0 && (
                 <div className="mt-2 text-[10px]">
-                   <span className="text-gray-500">Récents:</span>
+                   <span className="text-slate-500 dark:text-gray-500">Récents:</span>
                    <div className="space-y-1 mt-1 max-h-20 overflow-y-auto custom-scrollbar pr-1">
                       {sessions.map(s => (
-                         <div key={s.id} className="flex justify-between items-center group cursor-pointer hover:bg-gray-800/50 p-1 rounded" onClick={() => loadSession(s)}>
-                             <span className="text-gray-400 font-medium truncate pr-2" title={s.name}>{s.name}</span>
-                             <span className="text-indigo-400/50 group-hover:text-indigo-400 transition-colors">Load</span>
+                         <div key={s.id} className="flex justify-between items-center group cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-800/50 p-1 rounded" onClick={() => loadSession(s)}>
+                             <span className="text-slate-600 dark:text-gray-400 font-medium truncate pr-2" title={s.name}>{s.name}</span>
+                             <span className="text-indigo-600/50 group-hover:text-indigo-600 dark:text-indigo-400/50 dark:group-hover:text-indigo-400 transition-colors">Load</span>
                          </div>
                       ))}
                    </div>
@@ -567,47 +585,53 @@ export default function App() {
       </aside>
 
       {/* Main Panel */}
-      <main className="flex-1 flex flex-col min-w-0 bg-[#0f1117]">
+      <main className="flex-1 flex flex-col min-w-0 bg-white dark:bg-[#0f1117]">
         
         {/* Main Header */}
-        <header className="h-[60px] border-b border-gray-800 flex items-center px-4 lg:px-6 shrink-0 justify-between bg-[#131722]">
+        <header className="h-[60px] border-b border-slate-200 dark:border-gray-800 flex items-center px-4 lg:px-6 shrink-0 justify-between bg-slate-50 dark:bg-[#131722]">
           
           <div className="flex items-center gap-3">
-             <button onClick={() => setSidebarOpen(true)} className="md:hidden text-gray-400 hover:text-white mr-2">
+             <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white mr-2">
                 <AlignLeft className="w-5 h-5" />
              </button>
-             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-gray-800/50 border border-gray-700/50 rounded-md">
+             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-white border border-slate-200 dark:bg-gray-800/50 dark:border-gray-700/50 rounded-md">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                 </span>
-                <span className="text-[11px] font-mono text-gray-300">
-                   <strong className="text-white">{totalQueries}</strong> urls <span className="opacity-50">/</span> <strong className="text-white">{selectedLocations.length}</strong> villes <span className="opacity-50">/</span> <strong className="text-white">{selectedBusinesses.length}</strong> types
+                <span className="text-[11px] font-mono text-slate-500 dark:text-gray-300">
+                   <strong className="text-slate-800 dark:text-white">{totalQueries}</strong> urls <span className="opacity-50">/</span> <strong className="text-slate-800 dark:text-white">{selectedLocations.length}</strong> villes <span className="opacity-50">/</span> <strong className="text-slate-800 dark:text-white">{selectedBusinesses.length}</strong> types
                 </span>
              </div>
           </div>
 
           <div className="flex items-center gap-3">
-             <button onClick={clearSession} className="text-[11px] font-medium text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1.5 bg-gray-800/40 hover:bg-gray-700/60 px-2 py-1 rounded">
+             <button 
+                onClick={() => setIsDarkMode(!isDarkMode)} 
+                className="text-[11px] font-medium text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors flex items-center justify-center p-1.5 bg-slate-200/50 hover:bg-slate-200 dark:bg-gray-800/40 dark:hover:bg-gray-700/60 rounded focus:outline-none"
+             >
+                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+             </button>
+             <button onClick={clearSession} className="text-[11px] font-medium text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors flex items-center gap-1.5 bg-slate-200/50 hover:bg-slate-200 dark:bg-gray-800/40 dark:hover:bg-gray-700/60 px-2 py-1 rounded">
                  <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">Reset</span>
              </button>
-             <button onClick={exportAll} className="flex items-center gap-1.5 bg-white text-black hover:bg-gray-200 px-3 py-1.5 rounded text-[11px] font-bold transition-all shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+             <button onClick={exportAll} className="flex items-center gap-1.5 bg-slate-900 text-white dark:bg-white dark:text-black hover:bg-slate-800 dark:hover:bg-gray-200 px-3 py-1.5 rounded text-[11px] font-bold transition-all shadow-sm">
                 <DownloadCloud className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Export (Txt)</span>
              </button>
           </div>
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-hidden flex flex-col p-4 lg:p-6 bg-[#0f1117] h-full">
+        <div className="flex-1 overflow-hidden flex flex-col p-4 lg:p-6 bg-white dark:bg-[#0f1117] h-full">
            
            {/* Outputs Panel spanning full remaining height */}
-           <div className="flex-1 bg-[#161b2a]/50 border border-gray-800/80 rounded-lg shadow-sm flex flex-col min-h-0">
+           <div className="flex-1 bg-slate-50 border border-slate-200 dark:bg-[#161b2a]/50 dark:border-gray-800/80 rounded-lg shadow-sm flex flex-col min-h-0">
               
-              <div className="flex items-center gap-1 border-b border-gray-800 p-1.5 overflow-x-auto no-scrollbar shrink-0 bg-[#121622] rounded-t-lg">
+              <div className="flex items-center gap-1 border-b border-slate-200 dark:border-gray-800 p-1.5 overflow-x-auto no-scrollbar shrink-0 bg-slate-100 dark:bg-[#121622] rounded-t-lg">
                  <button 
                     onClick={() => setActiveOutputTab('maps')}
                     className={`px-3 py-1.5 text-[11px] font-medium rounded transition-colors focus:outline-none ${
-                       activeOutputTab === 'maps' ? 'bg-[#2a3045] text-white border-b-2 border-indigo-500 shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                       activeOutputTab === 'maps' ? 'bg-white text-indigo-700 border-b-2 border-indigo-500 shadow-sm dark:bg-[#2a3045] dark:text-white' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50'
                     }`}
                  >
                     URLs Google Maps
@@ -615,7 +639,7 @@ export default function App() {
                  <button 
                     onClick={() => setActiveOutputTab('phantom')}
                     className={`px-3 py-1.5 text-[11px] font-medium rounded transition-colors focus:outline-none ${
-                       activeOutputTab === 'phantom' ? 'bg-[#2a3045] text-white border-b-2 border-indigo-500 shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                       activeOutputTab === 'phantom' ? 'bg-white text-indigo-700 border-b-2 border-indigo-500 shadow-sm dark:bg-[#2a3045] dark:text-white' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50'
                     }`}
                  >
                     Charge PhantomBuster
@@ -623,21 +647,21 @@ export default function App() {
                  <button 
                     onClick={() => setActiveOutputTab('claude')}
                     className={`px-3 py-1.5 text-[11px] font-medium rounded transition-colors focus:outline-none ${
-                       activeOutputTab === 'claude' ? 'bg-[#2a3045] text-white border-b-2 border-indigo-500 shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                       activeOutputTab === 'claude' ? 'bg-white text-indigo-700 border-b-2 border-indigo-500 shadow-sm dark:bg-[#2a3045] dark:text-white' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50'
                     }`}
                  >
                     Prompt IA d'Enrichissement
                  </button>
                  <div className="flex-1"></div>
                  {/* Lead estimation Counter */}
-                 <div className="text-[10px] font-mono text-indigo-400/70 mr-3 px-2 py-0.5 bg-indigo-500/10 rounded hidden sm:block">
+                 <div className="text-[10px] font-mono text-indigo-600 mr-3 px-2 py-0.5 bg-indigo-50 rounded hidden sm:block dark:text-indigo-400/70 dark:bg-indigo-500/10">
                     ~ {estimationText} leads potentiels
                  </div>
               </div>
 
-              <div className="flex-1 flex flex-col p-4 bg-[#0f1117] rounded-b-lg overflow-hidden relative">
+              <div className="flex-1 flex flex-col p-4 bg-slate-50 dark:bg-[#0f1117] rounded-b-lg overflow-hidden relative">
                  {totalQueries === 0 ? (
-                   <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-600">
+                   <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-gray-600">
                      <Map className="w-8 h-8 mb-2 opacity-50" />
                      <p className="text-[12px] font-medium">Sélectionnez des enseignes et des villes</p>
                    </div>
@@ -646,33 +670,46 @@ export default function App() {
                        {activeOutputTab === 'maps' && (
                           <div className="flex flex-col h-full absolute inset-4">
                              <div className="flex justify-between items-center mb-3 shrink-0">
-                                <p className="text-[11px] text-gray-500">Copiez cette liste d'URLs pour la source d'entrée de PhantomBuster (Search Maps).</p>
+                                <p className="text-[11px] text-slate-500 dark:text-gray-500">Copiez cette liste d'URLs pour la source d'entrée de PhantomBuster (Search Maps).</p>
                                 <button 
                                   onClick={() => {
                                      const allUrls = generatedQueries.map(q => `https://www.google.com/maps/search/${encodeURIComponent(q.business)}+${encodeURIComponent(q.location)}`).join('\n');
-                                     copyToClipboard(allUrls);
+                                     copyToClipboard(allUrls, 'all-urls');
                                   }}
-                                  className="bg-indigo-600/20 hover:bg-indigo-600 text-[10px] font-medium text-indigo-300 hover:text-white px-2 py-1 rounded flex items-center gap-1.5 transition-colors border border-indigo-500/30"
+                                  className="bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white text-[10px] font-medium px-2 py-1 rounded flex items-center gap-1.5 transition-colors border border-indigo-200 hover:border-indigo-600 dark:bg-indigo-600/20 dark:hover:bg-indigo-600 dark:text-indigo-300 dark:hover:text-white dark:border-indigo-500/30"
                                 >
-                                   <Copy className="w-3 h-3" /> Pack complet
+                                   {copiedUrl === 'all-urls' ? <CheckCircle2 className="w-3 h-3 text-green-500 dark:text-green-400" /> : <Copy className="w-3 h-3" />} Pack complet
                                 </button>
                              </div>
                              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-1">
                                 {generatedQueries.map((q, i) => {
                                    const urlStr = `https://www.google.com/maps/search/${encodeURIComponent(q.business)}+${encodeURIComponent(q.location)}`;
+                                   const isCopied = copiedUrl === urlStr;
+                                   
                                    return (
-                                      <div key={i} className="flex items-center gap-2 bg-[#121622] hover:bg-[#1a1f2e] border border-gray-800 p-2 rounded group transition-colors">
+                                      <div key={i} className="flex items-center gap-2 bg-white hover:bg-slate-100 border border-slate-200 p-2 rounded group transition-colors dark:bg-[#121622] dark:hover:bg-[#1a1f2e] dark:border-gray-800">
                                          <div className="flex-1 min-w-0">
-                                            <p className="text-[11px] font-bold text-gray-300 truncate leading-none mb-1">{q.business} <span className="text-gray-500 font-normal">dans</span> {q.location}</p>
-                                            <p className="text-[10px] text-indigo-400/60 font-mono truncate leading-none">{urlStr}</p>
+                                            <p className="text-[11px] font-bold text-slate-800 dark:text-gray-300 truncate leading-none mb-1">{q.business} <span className="text-slate-500 dark:text-gray-500 font-normal">dans</span> {q.location}</p>
+                                            <p className="text-[10px] text-indigo-600 dark:text-indigo-400/60 font-mono truncate leading-none">{urlStr}</p>
                                          </div>
-                                         <button 
-                                            onClick={() => copyToClipboard(urlStr)}
-                                            className="p-1.5 text-gray-600 hover:text-indigo-400 bg-gray-800/50 hover:bg-indigo-500/20 rounded transition-colors focus:outline-none"
-                                            title="Copier l'URL"
-                                         >
-                                            <Copy className="w-3.5 h-3.5" />
-                                         </button>
+                                         <div className="flex items-center gap-1 shrink-0">
+                                            <button 
+                                                onClick={() => copyToClipboard(urlStr, urlStr)}
+                                                className={`p-1.5 rounded transition-colors focus:outline-none ${isCopied ? 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-500/10' : 'text-slate-400 hover:text-indigo-600 bg-slate-50 hover:bg-indigo-50 dark:text-gray-600 dark:hover:text-indigo-400 dark:bg-gray-800/50 dark:hover:bg-indigo-500/20'}`}
+                                                title="Copier l'URL"
+                                            >
+                                                {isCopied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                            </button>
+                                            <a 
+                                                href={urlStr}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="p-1.5 text-slate-400 hover:text-indigo-600 bg-slate-50 hover:bg-indigo-50 rounded transition-colors focus:outline-none dark:text-gray-600 dark:hover:text-indigo-400 dark:bg-gray-800/50 dark:hover:bg-indigo-500/20"
+                                                title="Ouvrir dans un nouvel onglet"
+                                            >
+                                                <ExternalLink className="w-3.5 h-3.5" />
+                                            </a>
+                                         </div>
                                       </div>
                                    )
                                 })}
@@ -683,7 +720,7 @@ export default function App() {
                        {activeOutputTab === 'phantom' && (
                           <div className="flex flex-col h-full absolute inset-4">
                              <div className="flex justify-between items-center mb-3 shrink-0">
-                                <p className="text-[11px] text-gray-500">Payload JSON pour injection API ou bulk list.</p>
+                                <p className="text-[11px] text-slate-500 dark:text-gray-500">Payload JSON pour injection API ou bulk list.</p>
                              </div>
                              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2">
                                 {generatedQueries.map((q, i) => {
@@ -693,15 +730,16 @@ export default function App() {
                                       "Export Fields": "name, address, phone, website, rating, reviewCount, category, hours",
                                       "Language": "fr"
                                     }, null, 2);
+                                   const isCopied = copiedUrl === `json-${i}`;
                                    return (
-                                      <div key={i} className="relative group bg-[#121622] border border-gray-800 rounded p-3 font-mono text-[10px] leading-relaxed text-gray-400 overflow-x-auto">
+                                      <div key={i} className="relative group bg-white border border-slate-200 rounded p-3 font-mono text-[10px] leading-relaxed text-slate-600 overflow-x-auto dark:bg-[#121622] dark:border-gray-800 dark:text-gray-400">
                                          <pre>{jsonStr}</pre>
                                          <button 
-                                            onClick={() => copyToClipboard(jsonStr)}
-                                            className="absolute top-2 right-2 p-1.5 bg-[#0f1117] border border-gray-700 rounded text-gray-500 hover:text-white transition-all focus:outline-none"
+                                            onClick={() => copyToClipboard(jsonStr, `json-${i}`)}
+                                            className={`absolute top-2 right-2 p-1.5 rounded transition-all focus:outline-none ${isCopied ? 'bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/30' : 'bg-slate-50 border border-slate-200 text-slate-400 hover:text-slate-600 dark:bg-[#0f1117] dark:border-gray-700 dark:text-gray-500 dark:hover:text-white'}`}
                                             title="Copier JSON"
                                          >
-                                            <Copy className="w-3.5 h-3.5" />
+                                            {isCopied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                                          </button>
                                       </div>
                                    )
@@ -713,15 +751,15 @@ export default function App() {
                        {activeOutputTab === 'claude' && (
                           <div className="flex flex-col h-full absolute inset-4">
                              <div className="flex justify-between items-center mb-3 shrink-0">
-                                <p className="text-[11px] text-gray-500">Prompt d'enrichissement pour le fichier exporté de PhantomBuster.</p>
+                                <p className="text-[11px] text-slate-500 dark:text-gray-500">Prompt d'enrichissement pour le fichier exporté de PhantomBuster.</p>
                                 <button 
-                                  onClick={() => copyToClipboard(claudePrompt)}
+                                  onClick={() => copyToClipboard(claudePrompt, 'prompt')}
                                   className="bg-indigo-600 hover:bg-indigo-500 text-[10px] font-bold text-white px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors shadow-lg shadow-indigo-600/20"
                                 >
-                                   <Copy className="w-3 h-3" /> Copier Prompt
+                                   {copiedUrl === 'prompt' ? <CheckCircle2 className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />} Copier Prompt
                                 </button>
                              </div>
-                             <div className="bg-[#121622] border border-gray-800 p-4 rounded flex-1 overflow-y-auto custom-scrollbar font-mono text-[11px] leading-relaxed text-gray-400 whitespace-pre-wrap selection:bg-indigo-500/30">
+                             <div className="bg-white border border-slate-200 p-4 rounded flex-1 overflow-y-auto custom-scrollbar font-mono text-[11px] leading-relaxed text-slate-600 whitespace-pre-wrap selection:bg-indigo-500/30 dark:bg-[#121622] dark:border-gray-800 dark:text-gray-400">
                                 {claudePrompt}
                              </div>
                           </div>
@@ -732,22 +770,22 @@ export default function App() {
            </div>
 
            {/* Workflow Mini-Guide */}
-           <div className="mt-4 bg-[#161b2a]/50 border border-gray-800/80 rounded-lg p-3 shrink-0 shadow-sm overflow-x-auto">
+           <div className="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-3 shrink-0 shadow-sm overflow-x-auto dark:bg-[#161b2a]/50 dark:border-gray-800/80">
              <div className="flex items-center gap-2 min-w-max">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1 mr-2">Workflow</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1 mr-2 dark:text-gray-500">Workflow</span>
                 <div className="flex items-center gap-2">
-                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-gray-800 text-[9px] font-bold text-gray-400 border border-gray-700">1</span>
-                   <span className="text-[11px] text-gray-400">Extraire Maps</span>
+                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-[9px] font-bold text-slate-500 border border-slate-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">1</span>
+                   <span className="text-[11px] text-slate-500 dark:text-gray-400">Extraire Maps</span>
                 </div>
-                <div className="w-4 h-[1px] bg-gray-800"></div>
+                <div className="w-4 h-[1px] bg-slate-200 dark:bg-gray-800"></div>
                 <div className="flex items-center gap-2">
-                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-gray-800 text-[9px] font-bold text-gray-400 border border-gray-700">2</span>
-                   <span className="text-[11px] text-gray-400">Scraping site web (Optionnel)</span>
+                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-[9px] font-bold text-slate-500 border border-slate-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">2</span>
+                   <span className="text-[11px] text-slate-500 dark:text-gray-400">Scraping site web (Optionnel)</span>
                 </div>
-                <div className="w-4 h-[1px] bg-gray-800"></div>
+                <div className="w-4 h-[1px] bg-slate-200 dark:bg-gray-800"></div>
                 <div className="flex items-center gap-2">
-                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-indigo-600/20 text-[9px] font-bold text-indigo-400 border border-indigo-500/30">3</span>
-                   <span className="text-[11px] text-gray-300 font-medium">Nettoyage IA Claude</span>
+                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-indigo-100 text-[9px] font-bold text-indigo-600 border border-indigo-200 dark:bg-indigo-600/20 dark:text-indigo-400 dark:border-indigo-500/30">3</span>
+                   <span className="text-[11px] text-slate-800 font-medium dark:text-gray-300">Nettoyage IA Claude</span>
                 </div>
              </div>
            </div>
