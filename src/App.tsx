@@ -287,42 +287,58 @@ export default function App() {
       const act = selectedBusinesses.length > 0 ? selectedBusinesses[0] : "[Activité]";
       const loc = selectedLocations.length > 0 ? selectedLocations[0] : "[Ville]";
       
+      const intro = (msgTone === 'direct') ? `Bonjour {{Prénom / Nom}},\n\n` :
+                    (msgTone === 'expert') ? `Bonjour Monsieur/Madame,\n\nEn tant qu'agitateur digital dans les Yvelines, j'ai analysé votre présence locale...\n\n` :
+                    (msgTone === 'local') ? `Bonjour de la part d'un voisin de ${loc} !\n\nJe suis passé devant chez vous récemment et...\n\n` :
+                    (msgTone === 'peer') ? `Salut l'équipe,\n\nJe suis tombé sur votre agence en cherchant des partenaires sur ${loc}...\n\n` :
+                    `Bonjour,\n\n`;
+
       if (msgGoal === 'whitelabel') {
-          return `Sujet : Partenariat Marque Blanche - [Votre Nom / Arx Systema]\n\nBonjour {{Nom}},\n\nJ'ai découvert votre agence de ${act} sur ${loc} et j'apprécie la qualité de vos réalisations.\n\nJe suis spécialisé en automatisation et développement spécifique. Je me demandais si vous aviez parfois des demandes clients que vous ne pouviez pas traiter en interne (manque de temps ou expertise spécifique) ?\n\nJe travaille souvent en marque blanche pour des confrères et j'aimerais vous proposer une solution de débordement flexible.\n\nSeriez-vous ouvert à en discuter 10 minutes ?\n\nCordialement,`;
+          if (msgTone === 'expert') return `${intro}Spécialisé en ingénierie logicielle, je propose aux agences de ${act} un renfort technique en marque blanche pour vos projets complexes.\n\nOptimisons ensemble votre marge brute en externalisant le dev spécifique. Dispo pour un zoom ?`;
+          if (msgTone === 'peer') return `${intro}On est sur le même secteur (${act}) et je cherche à déléguer du flux technique. Est-ce que vous prenez de la sous-traitance en ce moment ou vous saturez ?\n\nOn pourrait se renvoyer l'ascenseur sur certains dossiers.`;
+          return `${intro}J'ai vu votre agence de ${act} sur ${loc}. Je fais du dev spécifique et je bosse souvent en marque blanche pour des confrères. Si vous avez du débordement, je peux vous aider.`;
       }
+
       if (msgGoal === 'partnership') {
-          return `Sujet : Collaboration et recommandation locale à ${loc}\n\nBonjour {{Nom}},\n\nJe suis [Votre Nom], basé également dans les Yvelines (Arx Systema).\n\nEn tant que ${act}, vous êtes en contact régulier avec des entreprises locales qui ont sûrement des besoins que je traite (Refonte web, IA, CRM).\n\nDe mon côté, j'ai aussi des clients qui cherchent vos expertises.\nJe souhaiterais vous proposer un système d'apport d'affaires mutuel pour dynamiser notre réseau local.\n\nQuelle est votre disponibilité pour un café rapide sur ${loc} ?\n\nBien à vous,`;
+          return `${intro}Je suis basé à côté de ${loc} (Arx Systema). On adresse la même clientèle de chefs d'entreprise.\n\nJe cherche un partenaire de confiance en ${act} pour lui envoyer mes leads. Est-ce que vous seriez ouvert à un système d'apport d'affaires réciproque ?`;
       }
       
       if (msgGoal === 'website') {
-          if (msgTone === 'direct') return `Sujet : Votre présence en ligne à ${loc}\n\nBonjour {{Prénom / Nom}},\n\nEn cherchant un ${act} sur ${loc}, j'ai remarqué que vous n'aviez pas de site web (ou qu'il n'était pas bien référencé).\nAujourd'hui, c'est indispensable pour capter les clients de la zone.\n\nJe crée des sites clés-en-main qui génèrent directement des appels pour les pros.\nSeriez-vous dispo mardi pour en parler 5 min ?\n\nBien à vous,`;
-          if (msgTone === 'expert') return `Sujet : Audit digital rapide pour votre activité de ${act}\n\nBonjour {{Prénom / Nom}},\n\nJ'ai analysé votre présence digitale sur ${loc} en tant que ${act}. Sans site web performant, vous laissez la majorité du trafic de recherche locale à vos concurrents directs.\n\nNotre méthodologie permet de déployer une solution web optimisée conversion en 7 jours, augmentant vos appels entrants de 20 à 30%.\n\nUn échange de 10 minutes serait-il pertinent pour vous ?\n\nCordialement,`;
-          return `Sujet : Bonjour de la part d'un voisin !\n\nBonjour {{Prénom / Nom}},\n\nJ'habite près de ${loc} et je cherchais récemment un ${act}. Impossible de trouver votre site sur Google !\n\nJe suis webmaster indépendant et j'aide justement les artisans / pros du coin à se rendre visibles sans se ruiner, avec un site qui leur ramène de vrais clients.\n\nVous êtes dans le coin la semaine prochaine pour que je passe me présenter ?\n\nA bientôt,`;
+          if (msgTone === 'direct') return `${intro}En cherchant un ${act} sur ${loc}, j'ai vu que votre site manquait à l'appel. Aujourd'hui, 80% des clients comparent en ligne.\n\nJe crée des sites qui transforment les visiteurs en appels. On en parle ?`;
+          if (msgTone === 'expert') return `${intro}Votre fiche GMB est active mais l'absence de site web freine votre conversion SEO locale. Un site "moteur" vous permettrait de doubler vos prises de contacts.\n\nVoici comment nous pouvons automatiser cela pour un ${act}...`;
+          if (msgTone === 'local') return `${intro}J'habite à ${loc} et je ne trouve pas vos horaires/services en ligne. C'est dommage car votre boutique a l'air super !\n\nJe peux vous aider à être visible sur mobile très simplement. On s'en parle ?`;
+          return `${intro}On est voisins sur ${loc}. J'ai remarqué que votre présence web mériterait un petit coup de boost pour attirer plus de clients locaux.\n\nPassons un café pour voir ce qu'on peut faire ensemble.`;
       }
+
       if (msgGoal === 'seo') {
-          return `Sujet : Améliorer votre position sur Google Maps à ${loc}\n\nBonjour {{Prénom / Nom}},\n\nJ'ai vu votre fiche Google pour votre activité de ${act} à ${loc}. Vous êtes situé un peu bas dans les résultats par rapport à certains confrères.\n\nAvec quelques optimisations simples sur votre fiche (photos, mots-clés, réponses aux avis), vous pourriez capter beaucoup plus de recherches locales.\n\nAvez-vous déjà pensé à optimiser cela ?\nOn peut en parler 5 minutes jeudi si vous avez un instant.\n\nCordialement,`;
+          if (msgTone === 'direct') return `${intro}Vous apparaissez en 2ème page sur Google Maps à ${loc}. Vous perdez 90% des clics.\n\nJe vous remonte en 1ère page en 15 jours. Intéressé ?`;
+          return `${intro}En tant que ${act}, votre visibilité sur Google Maps est cruciale. J'ai un plan d'action précis pour dépasser vos concurrents sur ${loc}.\n\nRegardons ensemble vos stats Maps demain ?`;
       }
+
       if (msgGoal === 'reviews') {
-          return `Sujet : Retour sur vos avis clients à ${loc}\n\nBonjour {{Prénom / Nom}},\n\nEn regardant les ${act} à ${loc}, j'ai remarqué que votre note moyenne était peut-être perfectible ou manquait de nouveaux avis récents.\n\nBeaucoup de clients hésitent si la note est en dessous de 4 ou s'il y a peu d'avis. J'ai mis en place un système automatisé qui filtre les mauvais avis et encourage vos clients satisfaits à vous noter sur Google.\n\nCela vous intéresserait d'en savoir plus ?\n\nBien à vous,`;
+          return `${intro}J'ai vu vos avis Google... Pas facile de gérer les râleurs ! J'ai un outil qui booste vos 5 étoiles et cache les mauvais avis automatiquement.\n\nTestons-le sur votre fiche de ${act} ?`;
       }
-      // default auto
-      return `Sujet : Gagnez du temps sur vos relances\n\nBonjour {{Prénom / Nom}},\n\nEn tant que ${act} à ${loc}, vous passez sûrement beaucoup de temps au téléphone ou à répondre aux mêmes questions.\n\nJ'installe des assistants IA (chatbot, répondeur intelligent) qui qualifient vos demandes automatiquement 24h/24.\n\nIntéressé pour voir à quoi ça ressemble ?\n\nCordialement,`;
+
+      return `${intro}J'aide les ${act} à ${loc} à gagner 2h par jour en automatisant leur secrétariat et leurs relances devis.\n\nÇa vous changerait la vie ?`;
   };
 
   const getTemplateScript = () => {
     const act = selectedBusinesses.length > 0 ? selectedBusinesses[0] : "[Activité]";
     const loc = selectedLocations.length > 0 ? selectedLocations[0] : "[Ville]";
-    return `Moi : Bonjour, c'est [Votre Nom] de l'agence [Nom Agence]. Je cherche à parler au responsable ou au gérant s'il vous plaît.\n\nProspect : C'est moi-même.\n\nMoi : Enchanté. Je vous appelle très brièvement car on accompagne plusieurs ${act} dans les environs de ${loc}. On a remarqué que [Insérer l'angle: ex. vous n'aviez pas de site web / votre fiche Maps n'était pas très visible].\n\nMoi : Pour faire simple, on aide les pros comme vous à générer plus de contacts qualifiés. Est-ce que c'est un sujet que vous cherchez à améliorer en ce moment ?`;
+    const angle = MESSAGE_GOALS.find(g => g.id === msgGoal)?.angle || "votre visibilité";
+    
+    return `Moi : Bonjour, c'est [Votre Nom] de l'agence [Nom Agence]. Je cherche à parler au responsable ou au gérant s'il vous plaît.\n\nProspect : C'est moi-même.\n\nMoi : Enchanté. Je vous appelle très brièvement car on accompagne plusieurs ${act} dans les environs de ${loc}. On a remarqué que ${angle.toLowerCase()}.\n\nMoi : Pour faire simple, on aide les pros comme vous à générer plus de contacts qualifiés. Est-ce que c'est un sujet que vous cherchez à améliorer en ce moment ?`;
   };
 
   const getBatchPrompt = () => {
     const goal = MESSAGE_GOALS.find(g => g.id === msgGoal)?.label;
     const tone = MESSAGE_TONES.find(t => t.id === msgTone)?.label;
-    return `Tu es un expert en prospection B2B (Ton de la voix : ${tone}).\nTon objectif est de vendre la prestation suivante : ${goal}.\n\nJe vais te fournir un fichier CSV avec des leads qualifiés (Nom, Ville, Activité, Téléphone, etc.).\n\nPour CHAQUE ligne du fichier CSV, je veux que tu génères exactement 2 colonnes supplémentaires :\n1. \`[Email_Contact]\` : Un email d'approche hyper personnalisé (prend en compte la ville, l'activité, et le signal détecté comme l'absence de site web ou des avis faibles).\n2. \`[Script_Tel]\` : Une ligne d'accroche téléphonique personnalisée pour la secrétaire ou le dirigeant.\n\nContraintes :\n- Ne rajoute pas d'introduction ou de salutations de ta part dans la réponse globale.\n- Renvoie uniquement le CSV augmenté.\n- L'email doit être court (max 100 mots), percutant, et orienté prise de rendez-vous.`;
+    return `Tu es un expert en prospection B2B (Ton de la voix : ${tone}).\nTon objectif est de vendre la prestation suivante : ${goal}.\n\nJe vais te fournir un fichier CSV avec des leads qualifiés (Nom, Ville, Activité, Téléphone, etc.).\n\nPour CHAQUE ligne du fichier CSV, je veux que tu génères exactement 2 colonnes supplémentaires :\n1. \`[Email_Contact]\` : Un email d'approche hyper personnalisé (prend en compte la ville, l'activité, et le signal détecté).\n2. \`[Script_Tel]\` : Une ligne d'accroche téléphonique personnalisée pour la secrétaire ou le dirigeant.\n\nContraintes :\n- Pas d'intro IA, renvoie uniquement le CSV augmenté.\n- Email court (max 100 mots), percutant, orienté RDV.`;
   };
 
   const exportAll = () => {
     let content = `=== RÉCAPITULATIF DE RECHERCHE ARX SYSTEMA ===\n\n`;
+    content += `MODE : ${appMode.toUpperCase()}\n`;
     content += `URL MAPS GÉNÉRÉES:\n`;
     generatedQueries.forEach(q => {
       content += `https://www.google.com/maps/search/${encodeURIComponent(q.business)}+${encodeURIComponent(q.location)}\n`;
@@ -349,7 +365,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `arx_leads_export_${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `arx_leads_${appMode}_export_${new Date().toISOString().split('T')[0]}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -360,13 +376,15 @@ export default function App() {
       id: Date.now().toString(),
       name: sessionName,
       date: new Date().toISOString(),
+      appMode,
       state: { selectedBusinesses, selectedLocations, selectedFilters, selectedCoords }
     };
-    setSessions([newSession, ...sessions].slice(0, 10)); // Keep last 10
+    setSessions([newSession, ...sessions].slice(0, 15));
     setSessionName('');
   };
 
   const loadSession = (s: any) => {
+    if (s.appMode) setAppMode(s.appMode);
     setSelectedBusinesses(s.state.selectedBusinesses || []);
     setSelectedLocations(s.state.selectedLocations || []);
     setSelectedFilters(s.state.selectedFilters || []);
@@ -647,19 +665,22 @@ export default function App() {
              </div>
           </section>
 
-          {/* SESSION SAVE (Minimal) */}
+          {/* BIBLIOTHEQUE (Library of targets) */}
           <section className="bg-gradient-to-br from-slate-100 to-white border border-slate-200 dark:from-[#161b2a] dark:to-[#121622] rounded dark:border-gray-800 p-2.5">
-             <div className="flex gap-1.5">
+             <h2 className="text-[10px] font-bold text-slate-500 dark:text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                <FileText className="w-3 h-3" /> Bibliothèque de cibles
+             </h2>
+             <div className="flex gap-1.5 mb-3">
                 <input 
                   type="text" 
                   value={sessionName}
                   onChange={(e) => setSessionName(e.target.value)}
-                  placeholder="Nommer cette cible..."
+                  placeholder="Nommer la cible..."
                   className="flex-1 bg-white border border-slate-300 rounded px-2 py-1 text-[11px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 dark:bg-[#0f1117] dark:border-gray-700 dark:text-gray-300 dark:placeholder:text-gray-600"
                 />
                 <button 
                   onClick={saveSession}
-                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-2 rounded transition-colors focus:outline-none"
+                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-2 py-1 rounded transition-colors focus:outline-none"
                   disabled={!sessionName}
                   title="Sauvegarder"
                 >
@@ -667,16 +688,27 @@ export default function App() {
                 </button>
              </div>
              {sessions.length > 0 && (
-                <div className="mt-2 text-[10px]">
-                   <span className="text-slate-500 dark:text-gray-500">Récents:</span>
-                   <div className="space-y-1 mt-1 max-h-20 overflow-y-auto custom-scrollbar pr-1">
-                      {sessions.map(s => (
-                         <div key={s.id} className="flex justify-between items-center group cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-800/50 p-1 rounded" onClick={() => loadSession(s)}>
-                             <span className="text-slate-600 dark:text-gray-400 font-medium truncate pr-2" title={s.name}>{s.name}</span>
-                             <span className="text-indigo-600/50 group-hover:text-indigo-600 dark:text-indigo-400/50 dark:group-hover:text-indigo-400 transition-colors">Load</span>
-                         </div>
-                      ))}
-                   </div>
+                <div className="space-y-1.5 mt-1 max-h-[160px] overflow-y-auto custom-scrollbar pr-1">
+                   {sessions.map(s => (
+                      <div 
+                         key={s.id} 
+                         className="group cursor-pointer hover:bg-slate-200/50 dark:hover:bg-gray-800/50 p-2 rounded border border-transparent hover:border-slate-300 dark:hover:border-gray-700" 
+                         onClick={() => loadSession(s)}
+                      >
+                          <div className="flex justify-between items-center mb-0.5">
+                             <span className="text-[11px] text-slate-700 dark:text-gray-300 font-bold truncate pr-2 uppercase" title={s.name}>{s.name}</span>
+                             <span className="text-[9px] px-1 bg-slate-200 dark:bg-gray-800 text-slate-500 dark:text-gray-500 rounded font-mono uppercase">
+                                {s.appMode === 'agences' ? 'Agences' : 'Commerces'}
+                             </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                             <span className="text-[9px] text-slate-400 dark:text-gray-600 italic">
+                               {new Date(s.date).toLocaleDateString('fr-FR')}
+                             </span>
+                             <span className="text-indigo-600 dark:text-indigo-400 font-bold text-[9px] opacity-0 group-hover:opacity-100 transition-opacity">OUVRIR</span>
+                          </div>
+                      </div>
+                   ))}
                 </div>
              )}
           </section>
