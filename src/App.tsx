@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   MapPin, Store, Settings, Target, Beaker, Copy, Download,
   Save, RotateCcw, ChevronDown, ChevronUp, DownloadCloud,
-  CheckCircle2, Mail, Phone, MessageSquare, Globe, Search, Plus, Facebook, Instagram, Linkedin, Map
+  CheckCircle2, Mail, Phone, MessageSquare, Globe, Search, Plus, Facebook, Instagram, Linkedin, Map, AlignLeft
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
@@ -37,38 +37,42 @@ const BUSINESS_FAMILIES = [
 const LOCATION_CIRCLES = [
   {
     id: 'c1', title: 'Immédiat (< 5 min)',
-    items: ['Marly-le-Roi', 'Mareil-Marly', 'Fourqueux', 'Le Port-Marly', 'Noisy-le-Roi', 'Saint-Nom-la-Bretèche', "L'Étang-la-Ville"]
+    items: ["L'Étang-la-Ville", "Le Port-Marly", "Louveciennes", "Mareil-Marly", "Marly-le-Roi", "Fourqueux", "Bailly", "Saint-Germain-en-Laye", "Bougival", "Le Pecq"]
   },
   {
     id: 'c2', title: 'Proche (5–15 min)',
-    items: ['Saint-Germain-en-Laye', 'Louveciennes', 'Chambourcy', 'Aigremont', 'Bougival', 'Croissy-sur-Seine', 'Le Pecq', 'Le Vésinet', 'La Celle-Saint-Cloud', 'Rocquencourt', 'Bailly']
+    items: ["Croissy-sur-Seine", "Le Vésinet", "La Celle-Saint-Cloud", "Saint-Nom-la-Bretèche", "Chambourcy", "Aigremont", "Montesson", "Chatou", "Fontenay-le-Fleury", "Villepreux", "Vaucresson", "Rocquencourt", "Le Chesnay-Rocquencourt"]
   },
   {
-    id: 'c3', title: 'Paris Ouest (15–30 min)',
-    items: ['Versailles', 'Le Chesnay', 'Viroflay', 'Chaville', 'Sèvres', 'Saint-Cloud', 'Rueil-Malmaison', 'Chatou', 'Maisons-Laffitte', 'Poissy', 'Sartrouville', 'Nanterre']
+    id: 'c3', title: 'Inter. (15–25 min)',
+    items: ["Versailles", "Saint-Cyr-l'École", "Vélizy-Villacoublay", "Guyancourt", "Buc", "Montigny-le-Bretonneux", "Trappes", "Villennes-sur-Seine", "Achères", "Orgeval", "Carrières-sous-Poissy", "Maisons-Laffitte", "Sartrouville", "Houilles", "Carrières-sur-Seine", "Garches", "Marnes-la-Coquette", "Ville-d'Avray", "Suresnes", "Chaville", "Sèvres"]
+  },
+  {
+    id: 'c4', title: 'Ouest & 92 (25–30 min)',
+    items: ["Rueil-Malmaison", "Nanterre", "Bezons", "Courbevoie", "Puteaux", "Boulogne-Billancourt", "Colombes", "Argenteuil", "La Défense"]
   }
 ];
 
 const INTENT_FILTERS = [
-  { id: 'no_website', label: 'Sans site web', icon: '🚫', type: 'filter' },
-  { id: 'has_website', label: 'Site web présent', icon: '🔗', type: 'filter' },
-  { id: 'rating_under_4', label: 'Note < 4', icon: '⭐', type: 'filter' },
-  { id: 'rating_under_3_5', label: 'Note < 3,5', icon: '⭐', type: 'filter' },
-  { id: 'few_reviews', label: 'Moins de 10 avis', icon: '📝', type: 'filter' },
-  { id: 'no_phone', label: 'Sans téléphone affiché', icon: '📞', type: 'filter' },
-  { id: 'no_hours', label: 'Horaires manquants', icon: '🕐', type: 'filter' },
-  { id: 'no_photos', label: 'Sans photos', icon: '🖼️', type: 'filter' },
-  { id: 'open_weekend', label: 'Ouvert le week-end', icon: '📅', type: 'filter' },
+  { id: 'no_website', label: 'Sans site web', icon: '🚫' },
+  { id: 'has_website', label: 'Site web présent', icon: '🔗' },
+  { id: 'rating_under_4', label: 'Note < 4', icon: '⭐' },
+  { id: 'rating_under_3_5', label: 'Note < 3,5', icon: '⭐' },
+  { id: 'few_reviews', label: '< 10 avis', icon: '📝' },
+  { id: 'no_phone', label: 'Sans téléphone', icon: '📞' },
+  { id: 'no_hours', label: 'Horaires manquants', icon: '🕐' },
+  { id: 'no_photos', label: 'Sans photos', icon: '🖼️' },
+  { id: 'open_weekend', label: 'Ouvert week-end', icon: '📅' },
 ];
 
 const TARGET_COORDS = [
-  { id: 'email', label: 'E-mail', icon: <Mail className="w-4 h-4" /> },
-  { id: 'phone', label: 'Téléphone', icon: <Phone className="w-4 h-4" /> },
-  { id: 'whatsapp', label: 'WhatsApp', icon: <MessageSquare className="w-4 h-4" /> },
-  { id: 'website', label: 'Site web', icon: <Globe className="w-4 h-4" /> },
-  { id: 'facebook', label: 'Page Facebook', icon: <Facebook className="w-4 h-4" /> },
-  { id: 'instagram', label: 'Compte Instagram', icon: <Instagram className="w-4 h-4" /> },
-  { id: 'linkedin', label: 'Profil LinkedIn', icon: <Linkedin className="w-4 h-4" /> },
+  { id: 'email', label: 'E-mail', icon: <Mail className="w-3 h-3" /> },
+  { id: 'phone', label: 'Téléphone', icon: <Phone className="w-3 h-3" /> },
+  { id: 'whatsapp', label: 'WhatsApp', icon: <MessageSquare className="w-3 h-3" /> },
+  { id: 'website', label: 'Site web', icon: <Globe className="w-3 h-3" /> },
+  { id: 'facebook', label: 'Facebook', icon: <Facebook className="w-3 h-3" /> },
+  { id: 'instagram', label: 'Instagram', icon: <Instagram className="w-3 h-3" /> },
+  { id: 'linkedin', label: 'LinkedIn', icon: <Linkedin className="w-3 h-3" /> },
 ];
 
 // --- HOOKS ---
@@ -97,9 +101,12 @@ function useLocalStorage<T>(key: string, initialValue: T) {
   return [storedValue, setValue] as const;
 }
 
-// --- MAIN COMPONENTS ---
+// --- MAIN COMPONENT ---
 
 export default function App() {
+  // Mobile sidebar toggle
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // State
   const [selectedBusinesses, setSelectedBusinesses] = useState<string[]>([]);
   const [customBusiness, setCustomBusiness] = useState('');
@@ -189,7 +196,6 @@ export default function App() {
     let prompt = `Tu vas analyser ce fichier CSV exporté de Google Maps.\n\nPour chaque ligne :\n`;
     let stepCount = 1;
 
-    // Filters logic
     if (selectedFilters.includes('has_website')) {
       prompt += `${stepCount++}) Vérifie si le site web est accessible et lisible.\n`;
     }
@@ -277,85 +283,65 @@ export default function App() {
       setCustomLocation('');
   }
 
-
+  // Calculate totals
+  const totalQueries = generatedQueries.length;
+  
   return (
-    <div className="min-h-screen bg-[#0f1117] text-slate-200 font-sans selection:bg-indigo-500/30">
+    <div className="h-[100dvh] w-full flex overflow-hidden bg-[#0f1117] text-gray-300 font-sans selection:bg-indigo-500/30">
       
-      {/* HEADER */}
-      <header className="sticky top-0 z-30 bg-[#1a1f2e]/90 backdrop-blur-md border-b border-slate-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-               <MapPin className="w-4 h-4 text-white" />
+      {/* Sidebar Focus Mode */}
+      <aside className={`fixed inset-y-0 left-0 z-40 w-[300px] bg-[#161b2a] border-r border-gray-800 flex flex-col shrink-0 transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Sidebar Header */}
+        <div className="h-[60px] p-4 border-b border-gray-800 flex items-center justify-between shrink-0 bg-[#121622]">
+          <div className="flex items-center gap-2">
+             <div className="w-7 h-7 rounded bg-indigo-600 flex items-center justify-center">
+               <MapPin className="w-3.5 h-3.5 text-white" />
              </div>
              <div>
-                <h1 className="text-sm lg:text-base font-bold text-white leading-tight">Google Maps Leads Generator</h1>
-                <p className="text-xs text-slate-400">Arx Systema Workflow</p>
+                <h1 className="text-[13px] font-bold text-white leading-tight tracking-tight">Leads Gen</h1>
+                <p className="text-[10px] text-gray-400 font-mono tracking-tight uppercase">Arx Systema</p>
              </div>
           </div>
-
-          <div className="flex items-center gap-4">
-             {/* Dynamic Badge */}
-             <div className="hidden md:flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-full text-xs font-medium text-indigo-300">
-               <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-               {generatedQueries.length} URLs / {selectedLocations.length} Villes / {selectedBusinesses.length} Types
-             </div>
-
-             <button onClick={clearSession} className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors">
-                 <RotateCcw className="w-3.5 h-3.5" />
-                 <span className="hidden sm:inline">Réinitialiser</span>
-             </button>
-             <button onClick={exportAll} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-600/20">
-                <DownloadCloud className="w-4 h-4" />
-                <span className="hidden sm:inline">Exporter la session</span>
-             </button>
-          </div>
+          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-white">
+            <span className="text-xl leading-none">&times;</span>
+          </button>
         </div>
-      </header>
 
-      {/* MAIN LAYOUT */}
-      <main className="max-w-7xl mx-auto px-4 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 outline-none" role="main">
-        
-        {/* LEFT SIDEBAR (Inputs) */}
-        <div className="lg:col-span-4 space-y-6">
+        {/* Sidebar Content */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar">
           
-          {/* SECTION 1: ENSEIGNES */}
-          <section className="bg-[#1a1f2e] border border-slate-800 rounded-xl p-5 shadow-sm">
-             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                   <Store className="w-4 h-4 text-indigo-400" />
-                   1. Types d'enseignes
+          {/* SECTION 1: ENSEIGNES (COMPACT) */}
+          <section>
+             <div className="flex items-center justify-between mb-2">
+                <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                   Enseignes ({selectedBusinesses.length})
                 </h2>
-                <span className="bg-slate-800 text-slate-300 text-xs py-0.5 px-2 rounded-full font-medium">
-                   {selectedBusinesses.length} choisis
-                </span>
              </div>
-
-             <div className="space-y-3">
+             <div className="space-y-1.5">
                 {BUSINESS_FAMILIES.map(family => (
-                   <div key={family.id} className="border border-slate-800/60 rounded-lg overflow-hidden bg-[#141824]">
+                   <div key={family.id} className="bg-[#121622] rounded border border-gray-800/80 overflow-hidden">
                       <button 
                          onClick={() => toggleFamily(family.id)}
-                         className="w-full flex items-center justify-between p-3 text-sm font-medium hover:bg-slate-800/50 transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                         className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] font-medium hover:bg-gray-800/30 transition-colors text-left focus:outline-none"
                       >
-                         <span className="flex items-center gap-2">
-                           <span className="text-base">{family.icon}</span> {family.title}
+                         <span className="flex items-center gap-1.5 truncate">
+                           <span className="text-xs">{family.icon}</span> <span className="truncate">{family.title}</span>
                          </span>
-                         {openFamilies[family.id] ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                         {openFamilies[family.id] ? <ChevronUp className="w-3 h-3 text-gray-500 shrink-0" /> : <ChevronDown className="w-3 h-3 text-gray-500 shrink-0" />}
                       </button>
                       
                       {openFamilies[family.id] && (
-                        <div className="p-3 border-t border-slate-800/60 flex flex-wrap gap-2">
+                        <div className="px-2 pb-2 pt-1 border-t border-gray-800/80 flex flex-wrap gap-1.5 bg-[#0f1117]/50">
                            {family.items.map(item => {
                               const isActive = selectedBusinesses.includes(item);
                               return (
                                 <button
                                    key={item}
                                    onClick={() => toggleBusiness(item)}
-                                   className={`text-xs px-2.5 py-1.5 rounded-md font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                                   className={`text-[10px] px-1.5 py-0.5 rounded transition-all focus:outline-none ${
                                      isActive 
-                                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' 
-                                      : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700/50'
+                                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' 
+                                      : 'bg-gray-800/40 text-gray-400 hover:bg-gray-700/60 border border-gray-700/50'
                                    }`}
                                 >
                                    {item}
@@ -366,32 +352,29 @@ export default function App() {
                       )}
                    </div>
                 ))}
-
                 {/* Custom Business Input */}
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-1 mt-1">
                    <input
                      type="text"
-                     placeholder="Ajouter une activité (ex: Plaquiste)..."
+                     placeholder="Ajouter activité..."
                      value={customBusiness}
                      onChange={(e) => setCustomBusiness(e.target.value)}
                      onKeyDown={addCustomBusiness}
-                     className="flex-1 bg-[#0f1117] border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-sans"
+                     className="flex-1 bg-[#121622] border border-gray-800 rounded px-2 py-1 text-[11px] text-gray-300 placeholder:text-gray-600 focus:outline-none focus:border-indigo-500"
                    />
                    <button 
                       onClick={addCustomBusiness}
-                      className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                      aria-label="Ajouter champ personnalisé"
+                      className="bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded transition-colors focus:outline-none"
                    >
-                     <Plus className="w-4 h-4" />
+                     <Plus className="w-3 h-3" />
                    </button>
                 </div>
-
-                {/* Selected Custom Tags (if they don't belong to a predefined list it's good to show them) */}
+                {/* Selected Custom Tags */}
                 {selectedBusinesses.filter(b => !BUSINESS_FAMILIES.some(f => f.items.includes(b))).length > 0 && (
-                   <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+                   <div className="flex flex-wrap gap-1 mt-1">
                       {selectedBusinesses.filter(b => !BUSINESS_FAMILIES.some(f => f.items.includes(b))).map(b => (
-                         <button key={b} onClick={() => toggleBusiness(b)} className="text-xs px-2.5 py-1.5 rounded-md font-medium bg-indigo-600 text-white shadow-sm flex items-center gap-1 group">
-                            {b} <span className="opacity-60 group-hover:opacity-100">×</span>
+                         <button key={b} onClick={() => toggleBusiness(b)} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                            {b} <span className="opacity-70 hover:opacity-100">&times;</span>
                          </button>
                       ))}
                    </div>
@@ -399,27 +382,26 @@ export default function App() {
              </div>
           </section>
 
-          {/* SECTION 2: VILLES */}
-          <section className="bg-[#1a1f2e] border border-slate-800 rounded-xl p-5 shadow-sm">
-             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                   <Target className="w-4 h-4 text-teal-400" />
-                   2. Zone géographique
+          <hr className="border-gray-800" />
+
+          {/* SECTION 2: VILLES (COMPACT) */}
+          <section>
+             <div className="flex items-center justify-between mb-2">
+                <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                   Villes ({selectedLocations.length})
                 </h2>
-                <span className="bg-slate-800 text-slate-300 text-xs py-0.5 px-2 rounded-full font-medium">
-                   {selectedLocations.length} choisies
-                </span>
              </div>
 
-             <div className="flex border-b border-slate-800 mb-3 overflow-x-auto no-scrollbar">
+             {/* Tab Row (using native scrolling for tiny areas) */}
+             <div className="flex overflow-x-auto no-scrollbar gap-1 mb-2 pb-1 border-b border-gray-800">
                 {LOCATION_CIRCLES.map(circle => (
                    <button
                       key={circle.id}
                       onClick={() => setActiveLocationTab(circle.id)}
-                      className={`px-3 py-2 text-xs font-medium border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ${
+                      className={`px-2 py-1 text-[10px] whitespace-nowrap rounded-t-sm transition-colors focus:outline-none ${
                          activeLocationTab === circle.id 
-                           ? 'border-teal-500 text-teal-400' 
-                           : 'border-transparent text-slate-500 hover:text-slate-300'
+                           ? 'bg-teal-500/10 text-teal-400 border-b-2 border-teal-500' 
+                           : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/30 border-b-2 border-transparent'
                       }`}
                    >
                       {circle.title}
@@ -427,20 +409,20 @@ export default function App() {
                 ))}
              </div>
 
-             <div className="space-y-3">
+             <div className="space-y-2">
                 {LOCATION_CIRCLES.map(circle => activeLocationTab === circle.id && (
-                   <div key={circle.id} className="animate-in fade-in slide-in-from-bottom-2 duration-200">
-                      <div className="flex flex-wrap gap-2 mb-3">
+                   <div key={circle.id}>
+                      <div className="flex flex-wrap gap-1.5 mb-2">
                          {circle.items.map(loc => {
                             const isActive = selectedLocations.includes(loc);
                             return (
                                <button
                                   key={loc}
                                   onClick={() => toggleLocation(loc)}
-                                  className={`text-xs px-2.5 py-1.5 rounded-md font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ${
+                                  className={`text-[10px] px-1.5 py-0.5 rounded transition-all focus:outline-none ${
                                     isActive 
-                                     ? 'bg-teal-600/20 text-teal-400 ring-1 ring-teal-500/50' 
-                                     : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700/50'
+                                     ? 'bg-teal-500/15 text-teal-300 border border-teal-500/30' 
+                                     : 'bg-[#121622] text-gray-400 hover:bg-gray-800 border border-gray-800/80'
                                   }`}
                                >
                                   {loc}
@@ -450,39 +432,39 @@ export default function App() {
                       </div>
                       <button 
                          onClick={() => selectAllLocationsInTab(circle.id)}
-                         className="text-xs text-teal-400 font-medium hover:text-teal-300 underline underline-offset-2 decoration-teal-500/30"
+                         className="text-[10px] text-teal-400 hover:text-teal-300 underline decoration-teal-500/30"
                       >
-                         Tout sélectionner / désélectionner
+                         Tout {selectedLocations.length === circle.items.length ? 'désélectionner' : 'sélectionner'}
                       </button>
                    </div>
                 ))}
-
-                 {/* Custom Location Input */}
-                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-800">
+                
+                {/* Custom Location Input */}
+                <div className="flex items-center gap-1 mt-2">
                    <div className="relative flex-1">
-                      <Search className="w-4 h-4 absolute left-3 top-1.5 lg:top-2 text-slate-500" />
+                      <Search className="w-3 h-3 absolute left-2 top-1.5 text-gray-500" />
                       <input
                         type="text"
-                        placeholder="Autre ville (ex: Saint-Cyr)..."
+                        placeholder="Autre ville..."
                         value={customLocation}
                         onChange={(e) => setCustomLocation(e.target.value)}
                         onKeyDown={addCustomLocation}
-                        className="w-full bg-[#0f1117] border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all font-sans"
+                        className="w-full bg-[#121622] border border-gray-800 rounded pl-7 pr-2 py-1 text-[11px] text-gray-300 placeholder:text-gray-600 focus:outline-none focus:border-teal-500"
                       />
                    </div>
                    <button 
                       onClick={addCustomLocation}
-                      className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded transition-colors focus:outline-none"
                    >
-                     <Plus className="w-4 h-4" />
+                     <Plus className="w-3 h-3" />
                    </button>
                 </div>
                 {/* Selected Custom Tags */}
                 {selectedLocations.filter(l => !LOCATION_CIRCLES.some(c => c.items.includes(l))).length > 0 && (
-                   <div className="flex flex-wrap gap-2 pt-2">
+                   <div className="flex flex-wrap gap-1 mt-1">
                       {selectedLocations.filter(l => !LOCATION_CIRCLES.some(c => c.items.includes(l))).map(l => (
-                         <button key={l} onClick={() => toggleLocation(l)} className="text-xs px-2.5 py-1.5 rounded-md font-medium bg-teal-600/20 text-teal-400 ring-1 ring-teal-500/50 flex items-center gap-1 group">
-                            {l} <span className="opacity-60 group-hover:opacity-100">×</span>
+                         <button key={l} onClick={() => toggleLocation(l)} className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/15 text-teal-300 border border-teal-500/30 flex items-center gap-1">
+                            {l} <span className="opacity-70 hover:opacity-100">&times;</span>
                          </button>
                       ))}
                    </div>
@@ -490,275 +472,288 @@ export default function App() {
              </div>
           </section>
 
-          {/* SECTION 3 & 4: FILTRES ET COORDONNÉES */}
-          <section className="bg-[#1a1f2e] border border-slate-800 rounded-xl p-5 shadow-sm space-y-6">
-             
-             {/* Section 3 Options */}
-             <div>
-                 <h2 className="text-sm font-semibold text-white flex items-center gap-2 mb-3">
-                   <Settings className="w-4 h-4 text-emerald-400" />
-                   3. Filtres d'intention (Prompt)
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                   {INTENT_FILTERS.map(filter => {
-                       const isActive = selectedFilters.includes(filter.id);
-                       return (
-                          <button
-                            key={filter.id}
-                            onClick={() => toggleFilter(filter.id)}
-                            className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
-                               isActive 
-                                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' 
-                                  : 'bg-transparent border-slate-700 text-slate-400 hover:border-slate-500'
-                            }`}
-                          >
-                             <span>{filter.icon}</span> {filter.label}
-                          </button>
-                       );
-                   })}
+          <hr className="border-gray-800" />
+
+          {/* SECTION 3: FILTRES (COMPACT) */}
+          <section>
+             <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                 Filtres & Scraping
+             </h2>
+             <div className="bg-[#121622] rounded border border-gray-800/80 p-2 space-y-3">
+                <div>
+                   <span className="text-[10px] text-gray-500 mb-1.5 block">Filtres post-scraping (Claude)</span>
+                   <div className="flex flex-wrap gap-1">
+                       {INTENT_FILTERS.map(filter => {
+                           const isActive = selectedFilters.includes(filter.id);
+                           return (
+                              <button
+                                key={filter.id}
+                                onClick={() => toggleFilter(filter.id)}
+                                className={`text-[9px] px-1.5 py-0.5 rounded border transition-colors focus:outline-none flex items-center gap-1 ${
+                                   isActive 
+                                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                                      : 'bg-transparent border-gray-700 text-gray-500 hover:border-gray-500 hover:text-gray-400'
+                                }`}
+                              >
+                                 <span>{filter.icon}</span> {filter.label}
+                              </button>
+                           );
+                       })}
+                   </div>
+                </div>
+                <div>
+                   <span className="text-[10px] text-gray-500 mb-1.5 block">Coordonnées à extraire</span>
+                   <div className="flex flex-wrap gap-1.5">
+                       {TARGET_COORDS.map(coord => {
+                          const isChecked = selectedCoords.includes(coord.id);
+                          return (
+                             <label key={coord.id} className="flex items-center gap-1.5 cursor-pointer group">
+                                <div className={`w-3 h-3 rounded-[3px] border flex items-center justify-center transition-colors ${
+                                   isChecked ? 'bg-amber-500 border-amber-500' : 'bg-[#0f1117] border-gray-600 group-hover:border-gray-400'
+                                }`}>
+                                   {isChecked && <CheckCircle2 className="w-2.5 h-2.5 text-[#0f1117] stroke-[3]" />}
+                                </div>
+                                <span className="text-[10px] text-gray-400 group-hover:text-gray-300 leading-none">
+                                   {coord.label}
+                                </span>
+                                <input 
+                                  type="checkbox" 
+                                  className="sr-only" 
+                                  checked={isChecked}
+                                  onChange={() => toggleCoord(coord.id)} 
+                               />
+                             </label>
+                          )
+                       })}
+                   </div>
                 </div>
              </div>
-
-             <div className="border-t border-slate-800 pt-4">
-                 <h2 className="text-sm font-semibold text-white flex items-center gap-2 mb-3">
-                   <Beaker className="w-4 h-4 text-amber-400" />
-                   4. Coordonnées à extraire
-                </h2>
-                <div className="grid grid-cols-2 gap-3">
-                   {TARGET_COORDS.map(coord => {
-                      const isChecked = selectedCoords.includes(coord.id);
-                      return (
-                         <label key={coord.id} className="flex items-center gap-2.5 group cursor-pointer">
-                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                               isChecked ? 'bg-amber-500 border-amber-500' : 'bg-[#0f1117] border-slate-600 group-hover:border-slate-400'
-                            }`}>
-                               {isChecked && <CheckCircle2 className="w-3 h-3 text-white" />}
-                            </div>
-                            <span className="text-xs text-slate-300 group-hover:text-white flex items-center gap-1.5 font-medium transition-colors">
-                               <span className="text-slate-500">{coord.icon}</span> {coord.label}
-                            </span>
-                            <input 
-                              type="checkbox" 
-                              className="sr-only" 
-                              checked={isChecked}
-                              onChange={() => toggleCoord(coord.id)} 
-                           />
-                         </label>
-                      )
-                   })}
-                </div>
-             </div>
-
           </section>
 
-          {/* SESSION SAVE */}
-          <section className="bg-[#1a1f2e] border border-slate-800 rounded-xl p-5 shadow-sm">
-             <h2 className="text-sm font-semibold text-white mb-3">Sauvegardes de session</h2>
-             <div className="flex gap-2">
+          {/* SESSION SAVE (Minimal) */}
+          <section className="bg-gradient-to-br from-[#161b2a] to-[#121622] rounded border border-gray-800 p-2.5">
+             <div className="flex gap-1.5">
                 <input 
                   type="text" 
                   value={sessionName}
                   onChange={(e) => setSessionName(e.target.value)}
-                  placeholder="Nom de la cible (ex: Santé 78)..."
-                  className="flex-1 bg-[#0f1117] border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
+                  placeholder="Nommer cette cible..."
+                  className="flex-1 bg-[#0f1117] border border-gray-700 rounded px-2 py-1 text-[11px] text-gray-300 placeholder:text-gray-600 focus:outline-none focus:border-indigo-500"
                 />
                 <button 
                   onClick={saveSession}
-                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white p-2 shrink-0 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-2 rounded transition-colors focus:outline-none"
                   disabled={!sessionName}
                   title="Sauvegarder"
                 >
-                   <Save className="w-4 h-4" />
+                   <Save className="w-3 h-3" />
                 </button>
              </div>
              {sessions.length > 0 && (
-                <div className="mt-3">
-                   <p className="text-xs text-slate-400 mb-2 font-medium">Historique récent :</p>
-                   <div className="space-y-1.5">
+                <div className="mt-2 text-[10px]">
+                   <span className="text-gray-500">Récents:</span>
+                   <div className="space-y-1 mt-1 max-h-20 overflow-y-auto custom-scrollbar pr-1">
                       {sessions.map(s => (
-                         <div key={s.id} className="flex items-center justify-between group p-1.5 rounded-lg hover:bg-slate-800/50 transition-colors">
-                            <span className="text-xs text-slate-300 font-medium truncate pr-2" title={s.name}>{s.name}</span>
-                            <button 
-                              onClick={() => loadSession(s)}
-                              className="text-xs text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity hover:underline"
-                            >
-                               Charger
-                            </button>
+                         <div key={s.id} className="flex justify-between items-center group cursor-pointer hover:bg-gray-800/50 p-1 rounded" onClick={() => loadSession(s)}>
+                             <span className="text-gray-400 font-medium truncate pr-2" title={s.name}>{s.name}</span>
+                             <span className="text-indigo-400/50 group-hover:text-indigo-400 transition-colors">Load</span>
                          </div>
                       ))}
                    </div>
                 </div>
              )}
           </section>
-
         </div>
+      </aside>
 
-
-        {/* RIGHT MAIN PANEL (Outputs) */}
-        <div className="lg:col-span-8 flex flex-col space-y-6">
-           
-           {/* SECTION 6: WORKFLOW GUIDE */}
-           <div className="bg-[#1a1f2e] border border-indigo-500/20 rounded-xl p-5 shadow-sm">
-             <h2 className="text-sm font-semibold text-white mb-4">Le Workflow Arx Systema</h2>
-             <div className="flex flex-col md:flex-row gap-3">
-                
-                <div className="flex-1 bg-slate-900/50 rounded-lg p-3 border border-slate-800/50 relative">
-                   <div className="absolute -top-2.5 left-3 bg-[#1a1f2e] text-indigo-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-indigo-500/20">STEP 1</div>
-                   <p className="text-xs text-slate-300 mt-2">Copier une <b>URL Maps</b> et la coller dans PhantomBuster (Google Maps Search).</p>
-                </div>
-                
-                <div className="flex-1 bg-slate-900/50 rounded-lg p-3 border border-slate-800/50 relative">
-                   <div className="absolute -top-2.5 left-3 bg-[#1a1f2e] text-indigo-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-indigo-500/20">STEP 2</div>
-                   <p className="text-xs text-slate-300 mt-2">Extraire (Max 100) et exporter le CSV. Si site requis, lancer Data Scraping Crawler.</p>
-                </div>
-
-                <div className="flex-1 bg-slate-900/50 rounded-lg p-3 border border-slate-800/50 relative">
-                   <div className="absolute -top-2.5 left-3 bg-[#1a1f2e] text-indigo-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-indigo-500/20">STEP 3</div>
-                   <p className="text-xs text-slate-300 mt-2">Coller le CSV dans l'<b>Enrichissement Claude</b> avec le prompt généré ci-dessous.</p>
-                </div>
-
+      {/* Main Panel */}
+      <main className="flex-1 flex flex-col min-w-0 bg-[#0f1117]">
+        
+        {/* Main Header */}
+        <header className="h-[60px] border-b border-gray-800 flex items-center px-4 lg:px-6 shrink-0 justify-between bg-[#131722]">
+          
+          <div className="flex items-center gap-3">
+             <button onClick={() => setSidebarOpen(true)} className="md:hidden text-gray-400 hover:text-white mr-2">
+                <AlignLeft className="w-5 h-5" />
+             </button>
+             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-gray-800/50 border border-gray-700/50 rounded-md">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </span>
+                <span className="text-[11px] font-mono text-gray-300">
+                   <strong className="text-white">{totalQueries}</strong> urls <span className="opacity-50">/</span> <strong className="text-white">{selectedLocations.length}</strong> villes <span className="opacity-50">/</span> <strong className="text-white">{selectedBusinesses.length}</strong> types
+                </span>
              </div>
-           </div>
+          </div>
 
-           {/* SECTION 5: SORTIES */}
-           <div className="flex-1 bg-[#1a1f2e] border border-slate-800 rounded-xl shadow-sm flex flex-col min-h-[400px]">
+          <div className="flex items-center gap-3">
+             <button onClick={clearSession} className="text-[11px] font-medium text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1.5 bg-gray-800/40 hover:bg-gray-700/60 px-2 py-1 rounded">
+                 <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">Reset</span>
+             </button>
+             <button onClick={exportAll} className="flex items-center gap-1.5 bg-white text-black hover:bg-gray-200 px-3 py-1.5 rounded text-[11px] font-bold transition-all shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                <DownloadCloud className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Export (Txt)</span>
+             </button>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-hidden flex flex-col p-4 lg:p-6 bg-[#0f1117] h-full">
+           
+           {/* Outputs Panel spanning full remaining height */}
+           <div className="flex-1 bg-[#161b2a]/50 border border-gray-800/80 rounded-lg shadow-sm flex flex-col min-h-0">
               
-              <div className="flex items-center gap-1 border-b border-slate-800 p-2 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-1 border-b border-gray-800 p-1.5 overflow-x-auto no-scrollbar shrink-0 bg-[#121622] rounded-t-lg">
                  <button 
                     onClick={() => setActiveOutputTab('maps')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                       activeOutputTab === 'maps' ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                    className={`px-3 py-1.5 text-[11px] font-medium rounded transition-colors focus:outline-none ${
+                       activeOutputTab === 'maps' ? 'bg-[#2a3045] text-white border-b-2 border-indigo-500 shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                     }`}
                  >
-                    URLs Maps ({generatedQueries.length})
+                    URLs Google Maps
                  </button>
                  <button 
                     onClick={() => setActiveOutputTab('phantom')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                       activeOutputTab === 'phantom' ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                    className={`px-3 py-1.5 text-[11px] font-medium rounded transition-colors focus:outline-none ${
+                       activeOutputTab === 'phantom' ? 'bg-[#2a3045] text-white border-b-2 border-indigo-500 shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                     }`}
                  >
-                    JSON PhantomBuster
+                    Charge PhantomBuster
                  </button>
                  <button 
                     onClick={() => setActiveOutputTab('claude')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                       activeOutputTab === 'claude' ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                    className={`px-3 py-1.5 text-[11px] font-medium rounded transition-colors focus:outline-none ${
+                       activeOutputTab === 'claude' ? 'bg-[#2a3045] text-white border-b-2 border-indigo-500 shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                     }`}
                  >
-                    Prompt Claude
+                    Prompt IA d'Enrichissement
                  </button>
                  <div className="flex-1"></div>
                  {/* Lead estimation Counter */}
-                 <div className="text-[11px] text-slate-500 mr-2 flex items-center gap-1 hidden sm:flex">
-                    <Target className="w-3 h-3" />
-                    ~{estimationText} leads max
+                 <div className="text-[10px] font-mono text-indigo-400/70 mr-3 px-2 py-0.5 bg-indigo-500/10 rounded hidden sm:block">
+                    ~ {estimationText} leads potentiels
                  </div>
               </div>
 
-              <div className="p-5 flex-1 flex flex-col">
-                 
-                 {generatedQueries.length === 0 && (
-                   <div className="flex-1 flex flex-col items-center justify-center text-slate-500 space-y-3">
-                     <Map className="w-12 h-12 opacity-20" />
-                     <p className="text-sm">Sélectionnez au moins un type d'enseigne et une zone pour générer les sorties.</p>
+              <div className="flex-1 flex flex-col p-4 bg-[#0f1117] rounded-b-lg overflow-hidden relative">
+                 {totalQueries === 0 ? (
+                   <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-600">
+                     <Map className="w-8 h-8 mb-2 opacity-50" />
+                     <p className="text-[12px] font-medium">Sélectionnez des enseignes et des villes</p>
                    </div>
-                 )}
+                 ) : (
+                    <>
+                       {activeOutputTab === 'maps' && (
+                          <div className="flex flex-col h-full absolute inset-4">
+                             <div className="flex justify-between items-center mb-3 shrink-0">
+                                <p className="text-[11px] text-gray-500">Copiez cette liste d'URLs pour la source d'entrée de PhantomBuster (Search Maps).</p>
+                                <button 
+                                  onClick={() => {
+                                     const allUrls = generatedQueries.map(q => `https://www.google.com/maps/search/${encodeURIComponent(q.business)}+${encodeURIComponent(q.location)}`).join('\n');
+                                     copyToClipboard(allUrls);
+                                  }}
+                                  className="bg-indigo-600/20 hover:bg-indigo-600 text-[10px] font-medium text-indigo-300 hover:text-white px-2 py-1 rounded flex items-center gap-1.5 transition-colors border border-indigo-500/30"
+                                >
+                                   <Copy className="w-3 h-3" /> Pack complet
+                                </button>
+                             </div>
+                             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-1">
+                                {generatedQueries.map((q, i) => {
+                                   const urlStr = `https://www.google.com/maps/search/${encodeURIComponent(q.business)}+${encodeURIComponent(q.location)}`;
+                                   return (
+                                      <div key={i} className="flex items-center gap-2 bg-[#121622] hover:bg-[#1a1f2e] border border-gray-800 p-2 rounded group transition-colors">
+                                         <div className="flex-1 min-w-0">
+                                            <p className="text-[11px] font-bold text-gray-300 truncate leading-none mb-1">{q.business} <span className="text-gray-500 font-normal">dans</span> {q.location}</p>
+                                            <p className="text-[10px] text-indigo-400/60 font-mono truncate leading-none">{urlStr}</p>
+                                         </div>
+                                         <button 
+                                            onClick={() => copyToClipboard(urlStr)}
+                                            className="p-1.5 text-gray-600 hover:text-indigo-400 bg-gray-800/50 hover:bg-indigo-500/20 rounded transition-colors focus:outline-none"
+                                            title="Copier l'URL"
+                                         >
+                                            <Copy className="w-3.5 h-3.5" />
+                                         </button>
+                                      </div>
+                                   )
+                                })}
+                             </div>
+                          </div>
+                       )}
 
-                 {generatedQueries.length > 0 && activeOutputTab === 'maps' && (
-                    <div className="flex flex-col h-full animate-in fade-in duration-300">
-                       <div className="flex justify-between items-center mb-4">
-                          <p className="text-xs text-slate-400">URLs prêtes à être copiées dans <em>Google Maps Search Export</em>.</p>
-                          <button 
-                            onClick={() => {
-                               const allUrls = generatedQueries.map(q => `https://www.google.com/maps/search/${encodeURIComponent(q.business)}+${encodeURIComponent(q.location)}`).join('\n');
-                               copyToClipboard(allUrls);
-                            }}
-                            className="bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                          >
-                             <Copy className="w-3 h-3" /> Tout copier
-                          </button>
-                       </div>
-                       <div className="flex-1 overflow-y-auto pr-2 space-y-2 max-h-[500px]">
-                          {generatedQueries.map((q, i) => {
-                             const urlStr = `https://www.google.com/maps/search/${encodeURIComponent(q.business)}+${encodeURIComponent(q.location)}`;
-                             return (
-                                <div key={i} className="flex items-center gap-2 bg-[#0f1117] border border-slate-800 p-2.5 rounded-lg group hover:border-slate-600 transition-colors">
-                                   <div className="flex-1 min-w-0">
-                                      <p className="text-xs font-medium text-slate-300 truncate mb-0.5">{q.business} - {q.location}</p>
-                                      <p className="text-[10px] text-indigo-400/80 font-mono truncate">{urlStr}</p>
-                                   </div>
-                                   <button 
-                                      onClick={() => copyToClipboard(urlStr)}
-                                      className="p-2 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                                      title="Copier"
-                                   >
-                                      <Copy className="w-4 h-4" />
-                                   </button>
-                                </div>
-                             )
-                          })}
-                       </div>
-                    </div>
-                 )}
+                       {activeOutputTab === 'phantom' && (
+                          <div className="flex flex-col h-full absolute inset-4">
+                             <div className="flex justify-between items-center mb-3 shrink-0">
+                                <p className="text-[11px] text-gray-500">Payload JSON pour injection API ou bulk list.</p>
+                             </div>
+                             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2">
+                                {generatedQueries.map((q, i) => {
+                                   const jsonStr = JSON.stringify({
+                                      "Search Query": `${q.business} ${q.location}`,
+                                      "Max Results": 100,
+                                      "Export Fields": "name, address, phone, website, rating, reviewCount, category, hours",
+                                      "Language": "fr"
+                                    }, null, 2);
+                                   return (
+                                      <div key={i} className="relative group bg-[#121622] border border-gray-800 rounded p-3 font-mono text-[10px] leading-relaxed text-gray-400 overflow-x-auto">
+                                         <pre>{jsonStr}</pre>
+                                         <button 
+                                            onClick={() => copyToClipboard(jsonStr)}
+                                            className="absolute top-2 right-2 p-1.5 bg-[#0f1117] border border-gray-700 rounded text-gray-500 hover:text-white transition-all focus:outline-none"
+                                            title="Copier JSON"
+                                         >
+                                            <Copy className="w-3.5 h-3.5" />
+                                         </button>
+                                      </div>
+                                   )
+                                })}
+                             </div>
+                          </div>
+                       )}
 
-                 {generatedQueries.length > 0 && activeOutputTab === 'phantom' && (
-                    <div className="flex flex-col h-full animate-in fade-in duration-300">
-                       <div className="flex justify-between items-center mb-4">
-                          <p className="text-xs text-slate-400">Format JSON pour configuration PhantomBuster via API ou bulk.</p>
-                       </div>
-                       <div className="flex-1 overflow-y-auto pr-2 space-y-4 max-h-[500px]">
-                          {generatedQueries.map((q, i) => {
-                             const jsonStr = JSON.stringify({
-                                "Search Query": `${q.business} ${q.location}`,
-                                "Max Results": 100,
-                                "Export Fields": "name, address, phone, website, rating, reviewCount, category, hours",
-                                "Language": "fr"
-                              }, null, 2);
-                             return (
-                                <div key={i} className="relative group bg-[#0f1117] border border-slate-800 rounded-lg p-4 font-mono text-[11px] leading-relaxed text-slate-300 overflow-x-auto">
-                                   <pre>{jsonStr}</pre>
-                                   <button 
-                                      onClick={() => copyToClipboard(jsonStr)}
-                                      className="absolute top-2 right-2 p-1.5 bg-slate-800 border border-slate-700 rounded text-slate-400 opacity-0 group-hover:opacity-100 hover:text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                                      title="Copier le bloc"
-                                   >
-                                      <Copy className="w-3.5 h-3.5" />
-                                   </button>
-                                </div>
-                             )
-                          })}
-                       </div>
-                    </div>
+                       {activeOutputTab === 'claude' && (
+                          <div className="flex flex-col h-full absolute inset-4">
+                             <div className="flex justify-between items-center mb-3 shrink-0">
+                                <p className="text-[11px] text-gray-500">Prompt d'enrichissement pour le fichier exporté de PhantomBuster.</p>
+                                <button 
+                                  onClick={() => copyToClipboard(claudePrompt)}
+                                  className="bg-indigo-600 hover:bg-indigo-500 text-[10px] font-bold text-white px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors shadow-lg shadow-indigo-600/20"
+                                >
+                                   <Copy className="w-3 h-3" /> Copier Prompt
+                                </button>
+                             </div>
+                             <div className="bg-[#121622] border border-gray-800 p-4 rounded flex-1 overflow-y-auto custom-scrollbar font-mono text-[11px] leading-relaxed text-gray-400 whitespace-pre-wrap selection:bg-indigo-500/30">
+                                {claudePrompt}
+                             </div>
+                          </div>
+                       )}
+                    </>
                  )}
-
-                 {generatedQueries.length > 0 && activeOutputTab === 'claude' && (
-                    <div className="flex flex-col h-full animate-in fade-in duration-300">
-                       <div className="flex justify-between items-center mb-4">
-                          <p className="text-xs text-slate-400">Prompt optimisé pour le nettoyage et l'enrichissement de votre export CSV.</p>
-                          <button 
-                            onClick={() => copyToClipboard(claudePrompt)}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 shadow-md shadow-indigo-600/20"
-                          >
-                             <Copy className="w-3 h-3" /> Copier le Prompt
-                          </button>
-                       </div>
-                       <div className="bg-[#0f1117] border border-slate-800 rounded-lg p-5 flex-1 relative font-mono text-xs leading-relaxed text-slate-300 whitespace-pre-wrap">
-                          {claudePrompt}
-                       </div>
-                    </div>
-                 )}
-
               </div>
            </div>
-           
-           <footer className="text-center text-xs text-slate-500 py-4">
-              &copy; {new Date().getFullYear()} Arx Systema. Outil interne de génération de configurations de prospection logicielle.
-           </footer>
+
+           {/* Workflow Mini-Guide */}
+           <div className="mt-4 bg-[#161b2a]/50 border border-gray-800/80 rounded-lg p-3 shrink-0 shadow-sm overflow-x-auto">
+             <div className="flex items-center gap-2 min-w-max">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1 mr-2">Workflow</span>
+                <div className="flex items-center gap-2">
+                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-gray-800 text-[9px] font-bold text-gray-400 border border-gray-700">1</span>
+                   <span className="text-[11px] text-gray-400">Extraire Maps</span>
+                </div>
+                <div className="w-4 h-[1px] bg-gray-800"></div>
+                <div className="flex items-center gap-2">
+                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-gray-800 text-[9px] font-bold text-gray-400 border border-gray-700">2</span>
+                   <span className="text-[11px] text-gray-400">Scraping site web (Optionnel)</span>
+                </div>
+                <div className="w-4 h-[1px] bg-gray-800"></div>
+                <div className="flex items-center gap-2">
+                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-indigo-600/20 text-[9px] font-bold text-indigo-400 border border-indigo-500/30">3</span>
+                   <span className="text-[11px] text-gray-300 font-medium">Nettoyage IA Claude</span>
+                </div>
+             </div>
+           </div>
 
         </div>
       </main>
     </div>
   );
 }
-
