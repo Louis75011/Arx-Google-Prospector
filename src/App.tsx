@@ -310,7 +310,14 @@ export default function App() {
         "Language": "fr"
       }, null, 2) + `\n\n`;
     });
-    content += `\nPROMPT CLAUDE:\n${claudePrompt}\n`;
+    content += `\nPROMPT CLAUDE (NETTOYAGE):\n${claudePrompt}\n`;
+
+    content += `\n\n=== SCRIPTS & MESSAGES ===\n`;
+    content += `OBJECTIF : ${MESSAGE_GOALS.find(g => g.id === msgGoal)?.label}\n`;
+    content += `TON : ${MESSAGE_TONES.find(t => t.id === msgTone)?.label}\n\n`;
+    content += `--- EMAIL D'APPROCHE DIRECTE ---\n${getTemplateEmail1()}\n\n`;
+    content += `--- SCRIPT D'APPEL (COLD CALL) ---\n${getTemplateScript()}\n\n`;
+    content += `--- PROMPT CLAUDE (GÉNÉRATION EN LOT) ---\n${getBatchPrompt()}\n`;
 
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
