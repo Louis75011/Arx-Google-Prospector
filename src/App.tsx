@@ -2,10 +2,23 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   MapPin, Store, Settings, Target, Beaker, Copy, Download,
   Save, RotateCcw, ChevronDown, ChevronUp, DownloadCloud,
-  CheckCircle2, Mail, Phone, MessageSquare, Globe, Search, Plus, Facebook, Instagram, Linkedin, Map, AlignLeft, ExternalLink, Moon, Sun
+  CheckCircle2, Mail, Phone, MessageSquare, Globe, Search, Plus, Facebook, Instagram, Linkedin, Map, AlignLeft, ExternalLink, Moon, Sun, FileText, Smartphone, Send
 } from 'lucide-react';
 
 // --- DATA CONSTANTS ---
+
+const MESSAGE_GOALS = [
+  { id: 'website', label: 'Création / Refonte Site Web', angle: 'Absence de site ou site obsolète' },
+  { id: 'seo', label: 'Visibilité SEO Local (Google)', angle: 'Mauvaise position Google Maps' },
+  { id: 'reviews', label: 'E-réputation & Avis', angle: 'Note globale < 4 ou avis récents négatifs' },
+  { id: 'auto', label: 'Automatisation & IA', angle: 'Canaux de contact non optimisés' }
+];
+
+const MESSAGE_TONES = [
+  { id: 'direct', label: 'Direct & ROIste (Court)' },
+  { id: 'expert', label: 'Consultant & Expert (Détaillé)' },
+  { id: 'local', label: 'Proximité & Commerçant (Empathique)' },
+];
 
 const BUSINESS_FAMILIES = [
   {
@@ -129,8 +142,12 @@ export default function App() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectedCoords, setSelectedCoords] = useState<string[]>(['email', 'phone', 'website']);
   
-  const [activeOutputTab, setActiveOutputTab] = useState<'maps' | 'phantom' | 'claude'>('maps');
+  const [activeOutputTab, setActiveOutputTab] = useState<'maps' | 'phantom' | 'claude' | 'messages'>('maps');
   
+  const [msgGoal, setMsgGoal] = useState(MESSAGE_GOALS[0].id);
+  const [msgTone, setMsgTone] = useState(MESSAGE_TONES[2].id);
+  const [msgSubTab, setMsgSubTab] = useState<'individual' | 'batch'>('individual');
+
   const [openFamilies, setOpenFamilies] = useState<Record<string, boolean>>({
     f1: true, f2: false, f3: false, f4: false, f5: false, f6: false
   });
@@ -246,6 +263,37 @@ export default function App() {
     return prompt;
   }, [selectedFilters, selectedCoords]);
 
+  // Generators for Messages
+  const getTemplateEmail1 = () => {
+      const act = selectedBusinesses.length > 0 ? selectedBusinesses[0] : "[Activité]";
+      const loc = selectedLocations.length > 0 ? selectedLocations[0] : "[Ville]";
+      
+      if (msgGoal === 'website') {
+          if (msgTone === 'direct') return `Sujet : Votre présence en ligne à ${loc}\n\nBonjour {{Prénom / Nom}},\n\nEn cherchant un ${act} sur ${loc}, j'ai remarqué que vous n'aviez pas de site web (ou qu'il n'était pas bien référencé).\nAujourd'hui, c'est indispensable pour capter les clients de la zone.\n\nJe crée des sites clés-en-main qui génèrent directement des appels pour les pros.\nSeriez-vous dispo mardi pour en parler 5 min ?\n\nBien à vous,`;
+          if (msgTone === 'expert') return `Sujet : Audit digital rapide pour votre activité de ${act}\n\nBonjour {{Prénom / Nom}},\n\nJ'ai analysé votre présence digitale sur ${loc} en tant que ${act}. Sans site web performant, vous laissez la majorité du trafic de recherche locale à vos concurrents directs.\n\nNotre méthodologie permet de déployer une solution web optimisée conversion en 7 jours, augmentant vos appels entrants de 20 à 30%.\n\nUn échange de 10 minutes serait-il pertinent pour vous ?\n\nCordialement,`;
+          return `Sujet : Bonjour de la part d'un voisin !\n\nBonjour {{Prénom / Nom}},\n\nJ'habite près de ${loc} et je cherchais récemment un ${act}. Impossible de trouver votre site sur Google !\n\nJe suis webmaster indépendant et j'aide justement les artisans / pros du coin à se rendre visibles sans se ruiner, avec un site qui leur ramène de vrais clients.\n\nVous êtes dans le coin la semaine prochaine pour que je passe me présenter ?\n\nA bientôt,`;
+      }
+      if (msgGoal === 'seo') {
+          return `Sujet : Améliorer votre position sur Google Maps à ${loc}\n\nBonjour {{Prénom / Nom}},\n\nJ'ai vu votre fiche Google pour votre activité de ${act} à ${loc}. Vous êtes situé un peu bas dans les résultats par rapport à certains confrères.\n\nAvec quelques optimisations simples sur votre fiche (photos, mots-clés, réponses aux avis), vous pourriez capter beaucoup plus de recherches locales.\n\nAvez-vous déjà pensé à optimiser cela ?\nOn peut en parler 5 minutes jeudi si vous avez un instant.\n\nCordialement,`;
+      }
+      if (msgGoal === 'reviews') {
+          return `Sujet : Retour sur vos avis clients à ${loc}\n\nBonjour {{Prénom / Nom}},\n\nEn regardant les ${act} à ${loc}, j'ai remarqué que votre note moyenne était peut-être perfectible ou manquait de nouveaux avis récents.\n\nBeaucoup de clients hésitent si la note est en dessous de 4 ou s'il y a peu d'avis. J'ai mis en place un système automatisé qui filtre les mauvais avis et encourage vos clients satisfaits à vous noter sur Google.\n\nCela vous intéresserait d'en savoir plus ?\n\nBien à vous,`;
+      }
+      // default auto
+      return `Sujet : Gagnez du temps sur vos relances\n\nBonjour {{Prénom / Nom}},\n\nEn tant que ${act} à ${loc}, vous passez sûrement beaucoup de temps au téléphone ou à répondre aux mêmes questions.\n\nJ'installe des assistants IA (chatbot, répondeur intelligent) qui qualifient vos demandes automatiquement 24h/24.\n\nIntéressé pour voir à quoi ça ressemble ?\n\nCordialement,`;
+  };
+
+  const getTemplateScript = () => {
+    const act = selectedBusinesses.length > 0 ? selectedBusinesses[0] : "[Activité]";
+    const loc = selectedLocations.length > 0 ? selectedLocations[0] : "[Ville]";
+    return `Moi : Bonjour, c'est [Votre Nom] de l'agence [Nom Agence]. Je cherche à parler au responsable ou au gérant s'il vous plaît.\n\nProspect : C'est moi-même.\n\nMoi : Enchanté. Je vous appelle très brièvement car on accompagne plusieurs ${act} dans les environs de ${loc}. On a remarqué que [Insérer l'angle: ex. vous n'aviez pas de site web / votre fiche Maps n'était pas très visible].\n\nMoi : Pour faire simple, on aide les pros comme vous à générer plus de contacts qualifiés. Est-ce que c'est un sujet que vous cherchez à améliorer en ce moment ?`;
+  };
+
+  const getBatchPrompt = () => {
+    const goal = MESSAGE_GOALS.find(g => g.id === msgGoal)?.label;
+    const tone = MESSAGE_TONES.find(t => t.id === msgTone)?.label;
+    return `Tu es un expert en prospection B2B (Ton de la voix : ${tone}).\nTon objectif est de vendre la prestation suivante : ${goal}.\n\nJe vais te fournir un fichier CSV avec des leads qualifiés (Nom, Ville, Activité, Téléphone, etc.).\n\nPour CHAQUE ligne du fichier CSV, je veux que tu génères exactement 2 colonnes supplémentaires :\n1. \`[Email_Contact]\` : Un email d'approche hyper personnalisé (prend en compte la ville, l'activité, et le signal détecté comme l'absence de site web ou des avis faibles).\n2. \`[Script_Tel]\` : Une ligne d'accroche téléphonique personnalisée pour la secrétaire ou le dirigeant.\n\nContraintes :\n- Ne rajoute pas d'introduction ou de salutations de ta part dans la réponse globale.\n- Renvoie uniquement le CSV augmenté.\n- L'email doit être court (max 100 mots), percutant, et orienté prise de rendez-vous.`;
+  };
 
   const exportAll = () => {
     let content = `=== RÉCAPITULATIF DE RECHERCHE ARX SYSTEMA ===\n\n`;
@@ -652,6 +700,14 @@ export default function App() {
                  >
                     Prompt IA d'Enrichissement
                  </button>
+                 <button 
+                    onClick={() => setActiveOutputTab('messages')}
+                    className={`px-3 py-1.5 text-[11px] font-medium rounded transition-colors focus:outline-none ${
+                       activeOutputTab === 'messages' ? 'bg-white text-indigo-700 border-b-2 border-indigo-500 shadow-sm dark:bg-[#2a3045] dark:text-white' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50'
+                    }`}
+                 >
+                    Scripts & Messages
+                 </button>
                  <div className="flex-1"></div>
                  {/* Lead estimation Counter */}
                  <div className="text-[10px] font-mono text-indigo-600 mr-3 px-2 py-0.5 bg-indigo-50 rounded hidden sm:block dark:text-indigo-400/70 dark:bg-indigo-500/10">
@@ -764,6 +820,70 @@ export default function App() {
                              </div>
                           </div>
                        )}
+
+                       {activeOutputTab === 'messages' && (
+                          <div className="flex flex-col h-full absolute inset-4">
+                             <div className="flex flex-col sm:flex-row items-center gap-3 mb-4 shrink-0 bg-white dark:bg-[#121622] p-3 rounded border border-slate-200 dark:border-gray-800">
+                                 <div className="flex-1 w-full">
+                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif principal</label>
+                                     <select className="w-full bg-slate-50 border border-slate-200 rounded text-[11px] p-1.5 focus:border-indigo-500 focus:outline-none dark:bg-[#0f1117] dark:border-gray-700 dark:text-gray-300" value={msgGoal} onChange={e => setMsgGoal(e.target.value)}>
+                                         {MESSAGE_GOALS.map(g => <option key={g.id} value={g.id}>{g.label} ({g.angle})</option>)}
+                                     </select>
+                                 </div>
+                                 <div className="flex-1 w-full">
+                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Ton commercial</label>
+                                     <select className="w-full bg-slate-50 border border-slate-200 rounded text-[11px] p-1.5 focus:border-indigo-500 focus:outline-none dark:bg-[#0f1117] dark:border-gray-700 dark:text-gray-300" value={msgTone} onChange={e => setMsgTone(e.target.value)}>
+                                         {MESSAGE_TONES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                                     </select>
+                                 </div>
+                             </div>
+                             
+                             <div className="flex items-center gap-1 mb-3 shrink-0 bg-slate-100 p-1 rounded inline-flex self-start dark:bg-[#121622]">
+                                 <button onClick={() => setMsgSubTab('individual')} className={`text-[11px] px-3 py-1.5 rounded transition-colors ${msgSubTab === 'individual' ? 'bg-white shadow-sm text-indigo-700 font-bold dark:bg-[#2a3045] dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white/50'}`}>Modèles Individuels</button>
+                                 <button onClick={() => setMsgSubTab('batch')} className={`text-[11px] px-3 py-1.5 rounded transition-colors ${msgSubTab === 'batch' ? 'bg-white shadow-sm text-indigo-700 font-bold dark:bg-[#2a3045] dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-white/50'}`}>Prompt IA (En lot)</button>
+                             </div>
+
+                             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2 pb-4">
+                                 {msgSubTab === 'individual' && (
+                                     <>
+                                        <div className="bg-white border border-slate-200 rounded p-3 dark:bg-[#121622] dark:border-gray-800">
+                                           <h3 className="text-[11px] font-bold text-slate-800 dark:text-white mb-2 flex items-center justify-between">
+                                              <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-indigo-500" /> Email 1 : Approche directe</span>
+                                              <button onClick={() => copyToClipboard(getTemplateEmail1(), 'email1')} className="text-slate-400 hover:text-indigo-600 transition-colors focus:outline-none dark:text-gray-500 dark:hover:text-indigo-400">{copiedUrl === 'email1' ? <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}</button>
+                                           </h3>
+                                           <div className="text-[11px] text-slate-600 dark:text-gray-400 whitespace-pre-wrap font-mono p-2.5 bg-slate-50 dark:bg-[#0f1117] rounded border border-slate-100 dark:border-gray-800/50">
+                                              {getTemplateEmail1()}
+                                           </div>
+                                        </div>
+
+                                        <div className="bg-white border border-slate-200 rounded p-3 dark:bg-[#121622] dark:border-gray-800">
+                                           <h3 className="text-[11px] font-bold text-slate-800 dark:text-white mb-2 flex items-center justify-between">
+                                              <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-teal-500" /> Script d'Appel (Cold Call)</span>
+                                              <button onClick={() => copyToClipboard(getTemplateScript(), 'script')} className="text-slate-400 hover:text-teal-600 transition-colors focus:outline-none dark:text-gray-500 dark:hover:text-teal-400">{copiedUrl === 'script' ? <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}</button>
+                                           </h3>
+                                           <div className="text-[11px] text-slate-600 dark:text-gray-400 whitespace-pre-wrap font-mono p-2.5 bg-teal-50/30 dark:bg-teal-900/10 rounded border border-teal-100/50 dark:border-teal-800/30">
+                                              {getTemplateScript()}
+                                           </div>
+                                        </div>
+                                     </>
+                                 )}
+                                 {msgSubTab === 'batch' && (
+                                     <div className="flex flex-col h-full">
+                                         <p className="text-[11px] text-slate-500 dark:text-gray-400 mb-2 mt-1">Fournissez ce prompt à Claude avec le CSV qualifié pour qu'il génère les emails persos :</p>
+                                         <div className="bg-white border border-slate-200 p-4 rounded flex-1 font-mono text-[11px] leading-relaxed text-slate-600 whitespace-pre-wrap dark:bg-[#121622] dark:border-gray-800 dark:text-gray-400 relative">
+                                            <button 
+                                                onClick={() => copyToClipboard(getBatchPrompt(), 'batchprompt')}
+                                                className="absolute top-2 right-2 p-1.5 bg-slate-50 border border-slate-200 rounded hover:text-indigo-600 transition-all dark:bg-[#0f1117] dark:border-gray-700 dark:text-gray-500 dark:hover:text-white"
+                                            >
+                                                {copiedUrl === 'batchprompt' ? <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+                                            </button>
+                                            {getBatchPrompt()}
+                                         </div>
+                                     </div>
+                                 )}
+                             </div>
+                          </div>
+                       )}
                     </>
                  )}
               </div>
@@ -784,8 +904,13 @@ export default function App() {
                 </div>
                 <div className="w-4 h-[1px] bg-slate-200 dark:bg-gray-800"></div>
                 <div className="flex items-center gap-2">
-                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-indigo-100 text-[9px] font-bold text-indigo-600 border border-indigo-200 dark:bg-indigo-600/20 dark:text-indigo-400 dark:border-indigo-500/30">3</span>
-                   <span className="text-[11px] text-slate-800 font-medium dark:text-gray-300">Nettoyage IA Claude</span>
+                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-[9px] font-bold text-slate-500 border border-slate-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">3</span>
+                   <span className="text-[11px] text-slate-500 dark:text-gray-400">Nettoyage IA</span>
+                </div>
+                <div className="w-4 h-[1px] bg-slate-200 dark:bg-gray-800"></div>
+                <div className="flex items-center gap-2">
+                   <span className="flex items-center justify-center w-4 h-4 rounded-full bg-indigo-100 text-[9px] font-bold text-indigo-600 border border-indigo-200 dark:bg-indigo-600/20 dark:text-indigo-400 dark:border-indigo-500/30">4</span>
+                   <span className="text-[11px] text-slate-800 font-medium dark:text-gray-300">Approche Commerciale</span>
                 </div>
              </div>
            </div>
