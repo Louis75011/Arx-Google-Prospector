@@ -161,7 +161,7 @@ export default function App() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [selectedCoords, setSelectedCoords] = useState<string[]>(['email', 'phone', 'website']);
   
-  const [activeOutputTab, setActiveOutputTab] = useState<'maps' | 'phantom' | 'claude' | 'messages'>('maps');
+  const [activeOutputTab, setActiveOutputTab] = useState<'maps' | 'crm' | 'claude' | 'messages'>('maps');
   
   const [msgGoal, setMsgGoal] = useState(MESSAGE_GOALS[0].id);
   const [msgTone, setMsgTone] = useState(MESSAGE_TONES[2].id);
@@ -343,13 +343,54 @@ export default function App() {
     generatedQueries.forEach(q => {
       content += `https://www.google.com/maps/search/${encodeURIComponent(q.business)}+${encodeURIComponent(q.location)}\n`;
     });
-    content += `\n\nREQUÊTES PHANTOMBUSTER:\n`;
-    generatedQueries.forEach(q => {
+    content += `\n\nENTRÉES CRM:\n`;
+    const today = new Date().toISOString().split('T')[0];
+    generatedQueries.forEach((q, i) => {
       content += JSON.stringify({
-        "Search Query": `${q.business} ${q.location}`,
-        "Max Results": 100,
-        "Export Fields": "name, address, phone, website, rating, reviewCount, category, hours",
-        "Language": "fr"
+        "id": Date.now() + i,
+        "nomEntreprise": "",
+        "secteur": q.business,
+        "adresse": "",
+        "ville": q.location,
+        "telephone": "",
+        "email": "",
+        "website": "",
+        "linkedin": "",
+        "calendlyPerso": "",
+        "instagram": "",
+        "facebook": "",
+        "contactCle": "",
+        "canal": "Maps / Approche directe",
+        "typeAccroche": "A définir",
+        "dernierTypeContact": "Aucun",
+        "dateContact": today,
+        "statut": "En cours",
+        "priorite": "Moyenne",
+        "repondu": "NON",
+        "dernierContact": today,
+        "prochaiAction": "",
+        "distanceGare": "",
+        "horaires": "",
+        "notes": `Lead identifié via recherche: ${q.business} à ${q.location}`,
+        "notesSEO": "",
+        "projetEcheance": "",
+        "messageAccroche": "",
+        "auditRealise": false,
+        "maquetteRealisee": false,
+        "devisEnvoye": false,
+        "appelRdv": false,
+        "visioFaite": false,
+        "powerpointEtatLieuxFait": false,
+        "powerpointAxesAmeliorationFait": false,
+        "cartesVisite": false,
+        "cartesVisiteEndroits": [],
+        "siteRealise": false,
+        "suiviSite": false,
+        "venueAMoi": false,
+        "argentGenere": 0,
+        "noteSolvabilite": 5,
+        "noteConscienceNum": 5,
+        "noteAccessibilite": 5
       }, null, 2) + `\n\n`;
     });
     content += `\nPROMPT CLAUDE (NETTOYAGE):\n${claudePrompt}\n`;
@@ -768,12 +809,12 @@ export default function App() {
                     URLs Google Maps
                  </button>
                  <button 
-                    onClick={() => setActiveOutputTab('phantom')}
+                    onClick={() => setActiveOutputTab('crm')}
                     className={`px-3 py-1.5 text-[11px] font-medium rounded transition-colors focus:outline-none ${
-                       activeOutputTab === 'phantom' ? 'bg-white text-indigo-700 border-b-2 border-indigo-500 shadow-sm dark:bg-[#2a3045] dark:text-white' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50'
+                       activeOutputTab === 'crm' ? 'bg-white text-indigo-700 border-b-2 border-indigo-500 shadow-sm dark:bg-[#2a3045] dark:text-white' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50'
                     }`}
                  >
-                    Charge PhantomBuster
+                    Charge CRM
                  </button>
                  <button 
                     onClick={() => setActiveOutputTab('claude')}
@@ -856,18 +897,59 @@ export default function App() {
                           </div>
                        )}
 
-                       {activeOutputTab === 'phantom' && (
+                       {activeOutputTab === 'crm' && (
                           <div className="flex flex-col h-full absolute inset-4">
                              <div className="flex justify-between items-center mb-3 shrink-0">
-                                <p className="text-[11px] text-slate-500 dark:text-gray-500">Payload JSON pour injection API ou bulk list.</p>
+                                <p className="text-[11px] text-slate-500 dark:text-gray-500">Gabarit d'entrée CRM (format JSON pour import automatisé).</p>
                              </div>
                              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2">
                                 {generatedQueries.map((q, i) => {
+                                   const today = new Date().toISOString().split('T')[0];
                                    const jsonStr = JSON.stringify({
-                                      "Search Query": `${q.business} ${q.location}`,
-                                      "Max Results": 100,
-                                      "Export Fields": "name, address, phone, website, rating, reviewCount, category, hours",
-                                      "Language": "fr"
+                                      "id": Date.now() + i,
+                                      "nomEntreprise": "",
+                                      "secteur": q.business,
+                                      "adresse": "",
+                                      "ville": q.location,
+                                      "telephone": "",
+                                      "email": "",
+                                      "website": "",
+                                      "linkedin": "",
+                                      "calendlyPerso": "",
+                                      "instagram": "",
+                                      "facebook": "",
+                                      "contactCle": "",
+                                      "canal": "Maps / Approche directe",
+                                      "typeAccroche": "A définir",
+                                      "dernierTypeContact": "Aucun",
+                                      "dateContact": today,
+                                      "statut": "En cours",
+                                      "priorite": "Moyenne",
+                                      "repondu": "NON",
+                                      "dernierContact": today,
+                                      "prochaiAction": "",
+                                      "distanceGare": "",
+                                      "horaires": "",
+                                      "notes": `Lead identifié via recherche: ${q.business} à ${q.location}`,
+                                      "notesSEO": "",
+                                      "projetEcheance": "",
+                                      "messageAccroche": "",
+                                      "auditRealise": false,
+                                      "maquetteRealisee": false,
+                                      "devisEnvoye": false,
+                                      "appelRdv": false,
+                                      "visioFaite": false,
+                                      "powerpointEtatLieuxFait": false,
+                                      "powerpointAxesAmeliorationFait": false,
+                                      "cartesVisite": false,
+                                      "cartesVisiteEndroits": [],
+                                      "siteRealise": false,
+                                      "suiviSite": false,
+                                      "venueAMoi": false,
+                                      "argentGenere": 0,
+                                      "noteSolvabilite": 5,
+                                      "noteConscienceNum": 5,
+                                      "noteAccessibilite": 5
                                     }, null, 2);
                                    const isCopied = copiedUrl === `json-${i}`;
                                    return (
