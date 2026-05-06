@@ -683,7 +683,12 @@ export default function App() {
                        {TARGET_COORDS.map(coord => {
                           const isChecked = selectedCoords.includes(coord.id);
                           return (
-                             <label key={coord.id} className="flex items-center gap-1.5 cursor-pointer group">
+                             <button 
+                                key={coord.id} 
+                                onClick={() => toggleCoord(coord.id)}
+                                type="button"
+                                className="flex items-center gap-1.5 cursor-pointer group focus:outline-none"
+                             >
                                 <div className={`w-3 h-3 rounded-[3px] border flex items-center justify-center transition-colors ${
                                    isChecked ? 'bg-amber-500 border-amber-500' : 'bg-slate-50 border-slate-300 group-hover:border-slate-400 dark:bg-[#0f1117] dark:border-gray-600 dark:group-hover:border-gray-400'
                                 }`}>
@@ -692,13 +697,7 @@ export default function App() {
                                 <span className="text-[10px] text-slate-600 group-hover:text-slate-800 dark:text-gray-400 dark:group-hover:text-gray-300 leading-none">
                                    {coord.label}
                                 </span>
-                                <input 
-                                  type="checkbox" 
-                                  className="sr-only" 
-                                  checked={isChecked}
-                                  onChange={() => toggleCoord(coord.id)} 
-                               />
-                             </label>
+                             </button>
                           )
                        })}
                    </div>
